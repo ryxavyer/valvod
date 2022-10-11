@@ -10,6 +10,22 @@ export function getLevelProgress(level, xp) {
     return xp / total
 }
 
+export function getUpdatedLevelProgress(level, xp) {
+    const levelUps = Math.floor(getLevelProgress(level, xp))
+    if (levelUps > 0) {
+        const updatedLevel = level + levelUps
+        let totalXPforLevels = 0
+        for (let i=level; i<updatedLevel; i++) {
+            totalXPforLevels += calculateTotalLevelXP(i)
+        }
+        const updatedXP = xp - totalXPforLevels
+
+        return {updatedLevel: updatedLevel, updatedXP: updatedXP}
+    }
+
+    return {updatedLevel: level, updatedXP: xp}
+}
+
 export function getLevelProgressClass(level, xp) {
     const ratio = getLevelProgress(level, xp)
 
@@ -28,4 +44,13 @@ export function getLevelProgressClass(level, xp) {
     if (ratio >= 1) return "w-full"
 
     return ""
+}
+
+export function getLevelColorClass(level) {
+    if (level < 25) return "bg-white bg-opacity-20"
+    if (level < 50) return "bg-itemColor bg-opacity-80"
+    if (level < 75) return "bg-routyneGold bg-opacity-60"
+    if (level < 100) return "bg-emerald-600 bg-opacity-40"
+
+    return "bg-purple-800 bg-opacity-60"
 }

@@ -1,0 +1,1 @@
+export const NO_SESSION_ERROR = "No session found.  Refresh and try again."

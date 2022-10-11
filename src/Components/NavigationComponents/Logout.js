@@ -1,5 +1,5 @@
 import { supabase } from '../../supabaseClient'
-import { STATUS } from '../../status'
+import { STATUS } from '../../Utils/status'
 
 const Logout = ({ handleStatusUpdate, setError }) => {
     const handleLogout = async (e) => {
