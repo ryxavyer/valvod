@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { supabase } from "../supabaseClient"
 
-const ListCard = ({ session, lists, updateLists, selectedIndex, setSelectedIndex, handleListClick, setError }) => {
+const ListCard = ({ session, lists, updateLists, selectedIndex, setSelectedIndex, handleListClick, handleError }) => {
     const [newList, setNewList] = useState('')
 
     const updateNewList = (e) => {
@@ -11,7 +11,7 @@ const ListCard = ({ session, lists, updateLists, selectedIndex, setSelectedIndex
     const saveNewList = async (e) => {
         e.preventDefault()
         if (newList === '') {
-            setError("You must give new lists a name")
+            handleError("You must give new lists a name")
             return
         }
         try {
@@ -23,7 +23,7 @@ const ListCard = ({ session, lists, updateLists, selectedIndex, setSelectedIndex
                 ])
             if (error) throw error
         } catch (error) {
-            setError(error.error_description || error.message)
+            handleError(error.error_description || error.message)
             return
         }
 
@@ -39,7 +39,7 @@ const ListCard = ({ session, lists, updateLists, selectedIndex, setSelectedIndex
                 .eq('id', id)
             if (error) throw error
         } catch (error) {
-            setError(error.error_description || error.message)
+            handleError(error.error_description || error.message)
             return
         }
         updateLists()

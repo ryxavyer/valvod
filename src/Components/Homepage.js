@@ -104,14 +104,16 @@ const Homepage = ({ session }) => {
       }
 
       setLists(data)
-      if (selectedListId === null) {
+      if (selectedListId === null || data[selectedIndex] === undefined) {
+        setSelectedIndex(0)
         setSelectedListId(data[0].id)
         fetchItems(data[0].id)
+      } else {
+        fetchItems(data[selectedIndex].id)
       }
-      fetchItems(data[selectedIndex].id)
-
     } catch (error) {
-      setError(error.error_description || error.message)
+      handleError(error.error_description || error.message)
+      return
     }
   }
 
@@ -149,7 +151,7 @@ const Homepage = ({ session }) => {
           <div>
             {inSessionView ? 
               <div>
-                <Navigation session={session} username={username} status={status} level={level} xp={xp} handleStatusUpdate={handleStatusUpdate} setError={setError} setInSessionView={setInSessionView}/>
+                <Navigation session={session} username={username} status={status} level={level} xp={xp} handleStatusUpdate={handleStatusUpdate} setError={setError}/>
                 <Session session={session} setInSessionView={setInSessionView} activeListName={lists[selectedIndex].name}/>
                 <ItemCard session={session} lists={lists} items={items} listId={selectedListId} updateItems={fetchItems} setError={setError}/>
               </div>
@@ -163,7 +165,7 @@ const Homepage = ({ session }) => {
                 }
                 {error && <ErrorMessage error={error}/>}
                 <div className='flex flex-col mx-auto md:flex-row md:max-w-[1200px]'>
-                  <ListCard session={session} lists={lists} updateLists={fetchLists} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex} handleListClick={handleListClick} setError={handleError}/>
+                  <ListCard session={session} lists={lists} updateLists={fetchLists} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex} handleListClick={handleListClick} handleError={handleError}/>
                   <ItemCard session={session} lists={lists} items={items} listId={selectedListId} updateItems={fetchItems} setError={setError}/>
                   <Friends session={session}/>
                 </div>
