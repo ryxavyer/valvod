@@ -6,13 +6,14 @@ const ItemCard = ({ session, lists, items, listId, updateItems, handleError }) =
     const [newItem, setNewItem] = useState("")
 
     const updateNewItem = (e) => {
-        const input = (e.target.value).toString().trim()
+        const input = (e.target.value).toString()
         setNewItem(input)
     }
 
     const saveNewItem = async (e) => {
         e.preventDefault()
-        if (newItem === "") {
+        const cleanedItem = newItem.trim()
+        if (cleanedItem === "") {
             handleError("You must give new items a name")
             return
         }
@@ -21,7 +22,7 @@ const ItemCard = ({ session, lists, items, listId, updateItems, handleError }) =
             const { error } = await supabase
                 .from('items')
                 .insert([
-                    { user_id: user.id, list_id: listId, task: newItem },
+                    { user_id: user.id, list_id: listId, task: cleanedItem },
                 ])
             if (error) throw error
         } catch (error) {
@@ -29,7 +30,7 @@ const ItemCard = ({ session, lists, items, listId, updateItems, handleError }) =
             return
         }
 
-        setNewItem('')
+        setNewItem("")
         updateItems(listId)
     }
 

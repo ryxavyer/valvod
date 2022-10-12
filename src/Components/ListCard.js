@@ -5,13 +5,14 @@ const ListCard = ({ session, lists, updateLists, selectedIndex, setSelectedIndex
     const [newList, setNewList] = useState("")
 
     const updateNewList = (e) => {
-        const input = (e.target.value).toString().trim()
+        const input = (e.target.value).toString()
         setNewList(input)
     }
 
     const saveNewList = async (e) => {
         e.preventDefault()
-        if (newList === "") {
+        const cleanedList = newList.trim()
+        if (cleanedList === "") {
             handleError("You must give new lists a name")
             return
         }
@@ -20,7 +21,7 @@ const ListCard = ({ session, lists, updateLists, selectedIndex, setSelectedIndex
             const { error } = await supabase
                 .from('lists')
                 .insert([
-                    { user_id: user.id, name: newList },
+                    { user_id: user.id, name: cleanedList },
                 ])
             if (error) throw error
         } catch (error) {
@@ -28,7 +29,7 @@ const ListCard = ({ session, lists, updateLists, selectedIndex, setSelectedIndex
             return
         }
 
-        setNewList('')
+        setNewList("")
         updateLists()
     }
 
