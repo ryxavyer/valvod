@@ -153,7 +153,7 @@ const Homepage = ({ session }) => {
               <div>
                 <Navigation session={session} username={username} status={status} level={level} xp={xp} handleStatusUpdate={handleStatusUpdate} setError={setError}/>
                 <Session session={session} setInSessionView={setInSessionView} activeListName={lists[selectedIndex].name}/>
-                <ItemCard session={session} lists={lists} items={items} listId={selectedListId} updateItems={fetchItems} setError={setError}/>
+                <ItemCard session={session} lists={lists} items={items} listId={selectedListId} updateItems={fetchItems} handleError={handleError}/>
               </div>
              :
               <div>
@@ -166,7 +166,7 @@ const Homepage = ({ session }) => {
                 {error && <ErrorMessage error={error}/>}
                 <div className='flex flex-col mx-auto md:flex-row md:max-w-[1200px]'>
                   <ListCard session={session} lists={lists} updateLists={fetchLists} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex} handleListClick={handleListClick} handleError={handleError}/>
-                  <ItemCard session={session} lists={lists} items={items} listId={selectedListId} updateItems={fetchItems} setError={setError}/>
+                  <ItemCard session={session} lists={lists} items={items} listId={selectedListId} updateItems={fetchItems} handleError={handleError}/>
                   <Friends session={session}/>
                 </div>
               </div>

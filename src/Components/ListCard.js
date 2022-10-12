@@ -2,15 +2,16 @@ import { useState } from "react"
 import { supabase } from "../supabaseClient"
 
 const ListCard = ({ session, lists, updateLists, selectedIndex, setSelectedIndex, handleListClick, handleError }) => {
-    const [newList, setNewList] = useState('')
+    const [newList, setNewList] = useState("")
 
     const updateNewList = (e) => {
-        setNewList(e.target.value)
+        const input = (e.target.value).toString().trim()
+        setNewList(input)
     }
 
     const saveNewList = async (e) => {
         e.preventDefault()
-        if (newList === '') {
+        if (newList === "") {
             handleError("You must give new lists a name")
             return
         }
@@ -47,7 +48,7 @@ const ListCard = ({ session, lists, updateLists, selectedIndex, setSelectedIndex
 
     return (
         <div className='flex flex-col w-4/6 mx-auto my-8 md:w-1/4 md:mx-4'>
-            <form onSubmit={saveNewList} className="flex flex-row">
+            <form onSubmit={(e) => saveNewList(e)} className="flex flex-row">
                 <input className="bg-transparent w-full border-b-2 self-center py-1 placeholder:text-white placeholder:text-sm placeholder:opacity-50 focus:outline-none" placeholder='Add a list...' value={newList} onChange={(e) => updateNewList(e)}></input>
                 <button type='submit' hidden className="w-24 rounded-lg bg-routyneGold self-center py-2 hover:bg-routyneGoldLight">CREATE</button>
             </form>
