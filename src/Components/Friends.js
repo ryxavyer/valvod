@@ -7,6 +7,7 @@ import SuccessMessage from './SuccessMessage'
 import { NO_SESSION_ERROR } from '../Utils/errorUtils'
 import FriendDiv from './FriendDiv'
 import LoadingSpinner from './LoadingSpinner'
+import { STATUS } from '../Utils/status'
 
 export const Friends = ({ session }) => {
     const [loading, setLoading] = useState(false)
@@ -44,6 +45,13 @@ export const Friends = ({ session }) => {
         )
     }
 
+    const sortFriendsByStatus = (a, b) => {
+        if (a.status === STATUS.OFFLINE) return 1
+        if (b.status === STATUS.OFFLINE) return -1
+
+        return 0
+    }
+
     const fetchFriendsList = async () => {
         const { user } = session
         setLoading(true)
@@ -52,7 +60,7 @@ export const Friends = ({ session }) => {
 
             const friends = await queryFriendships(FRIEND_STATUS.A)
             if (!friends) setFormOpen(true)
-            !friends ? setFriends([]) : setFriends(friends)
+            !friends ? setFriends([]) : setFriends(friends.sort(sortFriendsByStatus))
 
             const requests = await queryRequests()
             !requests ? setRequests([]) : setRequests(requests)

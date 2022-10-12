@@ -29,7 +29,8 @@ export function getUpdatedLevelProgress(level, xp) {
 export function getLevelProgressClass(level, xp) {
     const ratio = getLevelProgress(level, xp)
 
-    if (ratio >= 0 && ratio < .083) return "w-0"
+    if (ratio === 0) return "w-0"
+    if (ratio > 0 && ratio < .083) return "w-2"
     if (ratio >= .083 && ratio < .166) return "w-1/12"
     if (ratio >= .166 && ratio < .250) return "w-2/12"
     if (ratio >= .250 && ratio < .333) return "w-3/12"

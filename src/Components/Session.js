@@ -185,7 +185,7 @@ const Session = ({ session, setInSessionView, activeListName }) => {
         <div>
             {!isWorking && !isBreak &&
                 <button className="w-full h-12 self-center text-sm rounded bg-white bg-opacity-5 hover:bg-opacity-10 focus:outline-white" onClick={() => handleExit()}>
-                    Exit Session View
+                    Exit Session
                 </button>
             }
             {error && <ErrorMessage error={error}/>}

@@ -3,24 +3,26 @@ import { supabase } from '../../supabaseClient';
 import { getLevelProgressClass } from '../../Utils/levelUtils'
 
 const Level = ({ session, level, xp }) => {
+    const [slevel, setSLevel] = useState(level)
     const [levelClass, setLevelClass] = useState(getLevelProgressClass(level, xp))
     const { user } = session
     const levelListener = supabase  // eslint-disable-line
-        .channel(`public:users:id=eq.${user.id}`)
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table:'users', filter:`id=eq.${user.id}` }, payload => {
+        .channel(`users:id=eq.${user.id}`)
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'users', filter: `id=eq.${user.id}` }, (payload) => {
             const updates = payload.new
-            if (updates && updates.level && updates.xp) {
+            if (updates && updates.level && updates.xp !== undefined) {
+                setSLevel(updates.level)
                 setLevelClass(getLevelProgressClass(updates.level, updates.xp))
             }
         })
         .subscribe()
 
     useEffect(() => {
-    }, [levelClass])
+    }, [slevel, levelClass])
 
     return (
         <div className='hidden flex-col justify-around w-36 mx-2 sm:flex'>
-            <div className='rounded-lg w-3/12 bg-white bg-opacity-5 self-center text-center'>{level}</div>
+            <div className='rounded-lg w-3/12 bg-white bg-opacity-5 self-center text-center'>{slevel}</div>
             <div className='rounded-full w-full bg-white bg-opacity-5 self-center text-center'>
                 <div className={`rounded-full bg-green-500 text-xs leading-none py-1 ${levelClass}`}></div>
             </div>

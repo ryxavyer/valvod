@@ -29,6 +29,10 @@ const Homepage = ({ session }) => {
     fetchUserInfo()
   }, []) // eslint-disable-line
 
+  window.addEventListener('beforeunload', () => {
+    handleStatusUpdate(STATUS.OFFLINE)
+  })
+
   const handleError = (error) => {
     setError(error)
     if (errorTimeout) {
@@ -47,6 +51,7 @@ const Homepage = ({ session }) => {
   }
 
   const handleListClick = (index, id) => {
+    if (index === selectedIndex || id === selectedListId) return
     setSelectedIndex(index)
     setSelectedListId(id)
     fetchItems(id)
@@ -144,7 +149,7 @@ const Homepage = ({ session }) => {
           <div>
             {inSessionView ? 
               <div>
-                <Navigation session={session} username={username} status={status} level={level} xp={xp} handleStatusUpdate={handleStatusUpdate} setError={setError}/>
+                <Navigation session={session} username={username} status={status} level={level} xp={xp} handleStatusUpdate={handleStatusUpdate} setError={setError} setInSessionView={setInSessionView}/>
                 <Session session={session} setInSessionView={setInSessionView} activeListName={lists[selectedIndex].name}/>
                 <ItemCard session={session} lists={lists} items={items} listId={selectedListId} updateItems={fetchItems} setError={setError}/>
               </div>
@@ -153,7 +158,7 @@ const Homepage = ({ session }) => {
                 <Navigation session={session} username={username} status={status} level={level} xp={xp} handleStatusUpdate={handleStatusUpdate} setError={setError}/>
                 {lists.length !== 0 && items.length !== 0 &&
                   <button className="w-full mb-4 h-12 self-center text-sm rounded bg-white bg-opacity-5 hover:bg-opacity-10 focus:outline-white" onClick={() => setInSessionView(true)}>
-                    Go to Session View
+                    Start a Session
                   </button>
                 }
                 {error && <ErrorMessage error={error}/>}
