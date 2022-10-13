@@ -3,6 +3,7 @@ import { supabase } from '../../supabaseClient'
 import notificationPNG from '../../static/notifications.png'
 import ErrorMessage from '../ErrorMessage';
 import { getTimeToDisplay } from '../../Utils/dateUtils';
+import { DEFAULT_MSG_LENGTH } from '../../Utils/errorUtils';
 
 const NotificationPing = ({ hasUnread }) => {
     return (
@@ -41,7 +42,7 @@ const Updates = ({ session }) => {
         }
         setErrorTimeout(setTimeout(() => {
             setError(null)
-            }, 5000)
+            }, DEFAULT_MSG_LENGTH)
         )
     }
 

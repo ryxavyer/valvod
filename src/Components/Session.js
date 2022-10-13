@@ -2,12 +2,13 @@ import { useState, useEffect } from "react"
 import { getCorrespondingBreak, POMODORO_TIMER } from "../Utils/sessionUtils"
 import GoldDivider from "./GoldDivider"
 import alarm from "../audio/alarm.mp3"
-import { NO_SESSION_ERROR } from "../Utils/errorUtils"
+import { DEFAULT_MSG_LENGTH, NO_SESSION_ERROR } from "../Utils/errorUtils"
 import ErrorMessage from "./ErrorMessage"
 import { supabase } from "../supabaseClient"
 import { getUpdatedLevelProgress } from "../Utils/levelUtils"
 import { changeStatus, STATUS } from "../Utils/status"
 
+const DEFAULT_DOCUMENT_TITLE = "routyne"
 const WORKING_DEFAULT = 25*60
 const BREAK_DEFAULT = 5*60
 const TIME_DEFAULT = {h: "00", m: "25", s: "00"}
@@ -55,19 +56,25 @@ const Session = ({ session, setInSessionView, activeListName }) => {
         setWorkSelect(initialWorkingSeconds/60)
         setBreakSeconds(initialBreakSeconds)
         setBreakSelect(initialBreakSeconds/60)
-        setTime(secondsToTime(initialWorkingSeconds))
+        updateTime(secondsToTime(initialWorkingSeconds))
+        document.title = DEFAULT_DOCUMENT_TITLE
     }
 
     const handleError = (error) => {
         setError(error)
         setTimeout(() => {
             setError(null)
-        }, 5000)
+        }, DEFAULT_MSG_LENGTH)
     }
 
     const handleExit = () => {
         resetState()
         setInSessionView(false)
+    }
+
+    const updateTime = (newTime) => {
+        document.title = newTime.h !== "00" ? `${newTime.h}:${newTime.m}:${newTime.s} - routyne` : `${newTime.m}:${newTime.s} - routyne`
+        setTime(newTime)
     }
 
     const secondsToTime = (secs) => {
@@ -105,7 +112,7 @@ const Session = ({ session, setInSessionView, activeListName }) => {
         setWorkingSeconds(selectedWork*60)
         setInitialWorkingSeconds(selectedWork*60)
 
-        setTime(secondsToTime(selectedWork*60))
+        updateTime(secondsToTime(selectedWork*60))
     }
 
     const handleBreakSelectChange = (e) => {
@@ -122,7 +129,7 @@ const Session = ({ session, setInSessionView, activeListName }) => {
             isWorking ? setBreakSeconds(initialBreakSeconds) : setWorkingSeconds(initialWorkingSeconds)
             setIsWorking(!isWorking)
             setIsBreak(!isBreak)
-            setTime(secondsToTime(isWorking ? initialBreakSeconds : initialWorkingSeconds))
+            updateTime(secondsToTime(isWorking ? initialBreakSeconds : initialWorkingSeconds))
         }, 3000)
     }
 
@@ -130,11 +137,13 @@ const Session = ({ session, setInSessionView, activeListName }) => {
         let newSeconds = 0
         if (isWorking) newSeconds = workingSeconds - 1
         if (isBreak) newSeconds = breakSeconds - 1
+
         const newTotal = isWorking ? totalWorkingSeconds + 1 : totalWorkingSeconds
+        setTotalWorkingSeconds(newTotal)
+
         if (isWorking) setWorkingSeconds(newSeconds)
         if (isBreak) setBreakSeconds(newSeconds)
-        setTotalWorkingSeconds(newTotal)
-        setTime(secondsToTime(newSeconds))
+        updateTime(secondsToTime(newSeconds))
     }
 
     const handleSessionXP = async () => {
@@ -171,7 +180,7 @@ const Session = ({ session, setInSessionView, activeListName }) => {
         const { user } = session
         setIsWorking(true)
         changeStatus(user, STATUS.WORKING, activeListName)
-        setTime(secondsToTime(workingSeconds))
+        updateTime(secondsToTime(workingSeconds))
     }
 
     const endSession = () => {

@@ -7,7 +7,7 @@ import CreateUsername from './CreateUsername'
 import ListCard from './ListCard'
 import ItemCard from './ItemCard'
 import Friends from './Friends'
-import { NO_SESSION_ERROR } from '../Utils/errorUtils'
+import { DEFAULT_MSG_LENGTH, NO_SESSION_ERROR } from '../Utils/errorUtils'
 import LoadingSpinner from './LoadingSpinner'
 import Session from './Session'
 
@@ -40,7 +40,7 @@ const Homepage = ({ session }) => {
     }
     setErrorTimeout(setTimeout(() => {
         setError(null)
-      }, 5000)
+      }, DEFAULT_MSG_LENGTH)
     )
   }
 
@@ -136,7 +136,8 @@ const Homepage = ({ session }) => {
       }
       setItems(data)
     } catch (error) {
-        setError(error.error_description || error.message)
+        handleError(error.error_description || error.message)
+        return
     }
   }
 

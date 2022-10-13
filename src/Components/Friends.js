@@ -4,7 +4,7 @@ import checkmarkPNG from "../static/checkmark.png"
 import ErrorMessage from './ErrorMessage'
 import { FRIEND_STATUS } from '../Utils/friendStatus'
 import SuccessMessage from './SuccessMessage'
-import { NO_SESSION_ERROR } from '../Utils/errorUtils'
+import { DEFAULT_MSG_LENGTH, NO_SESSION_ERROR } from '../Utils/errorUtils'
 import FriendDiv from './FriendDiv'
 import LoadingSpinner from './LoadingSpinner'
 import { STATUS } from '../Utils/status'
@@ -30,7 +30,7 @@ export const Friends = ({ session }) => {
         }
         setMessageTimeout(setTimeout(() => {
             setSuccess(null)
-            }, 5000)
+            }, DEFAULT_MSG_LENGTH)
         )
     }
 
@@ -41,7 +41,7 @@ export const Friends = ({ session }) => {
         }
         setMessageTimeout(setTimeout(() => {
             setError(null)
-            }, 5000)
+            }, DEFAULT_MSG_LENGTH)
         )
     }
 
@@ -58,7 +58,7 @@ export const Friends = ({ session }) => {
         try {
             if (!user) throw Error(NO_SESSION_ERROR)
 
-            const friends = await queryFriendships(FRIEND_STATUS.A)
+            const friends = await queryFriendships(FRIEND_STATUS.A, false)
             if (!friends) setFormOpen(true)
             !friends ? setFriends([]) : setFriends(friends.sort(sortFriendsByStatus))
 
@@ -89,7 +89,10 @@ export const Friends = ({ session }) => {
             .subscribe()
     }
 
-    const queryFriendships = async (status) => {
+    const queryFriendships = async (status, returnFriendships) => {
+        // if returnFriendships is true, return a list of friendship records
+        // if returnFriendships is false, return a list of user records
+
         const { user } = session
         try {
             if (!user) throw Error(NO_SESSION_ERROR)
@@ -109,6 +112,10 @@ export const Friends = ({ session }) => {
                 .eq("status", status)
 
             if (requesteeFriendshipsData.error) throw requesteeFriendshipsData.error
+
+            if (returnFriendships) {
+                return [...requesterFriendshipsData.data, ...requesteeFriendshipsData.data]
+            }
 
             const friendshipIds = []
             if (requesterFriendshipsData.data) friendshipIds.push.apply(friendshipIds, requesterFriendshipsData.data.map((friendship) => {return friendship.requestee_id}))
@@ -225,35 +232,61 @@ export const Friends = ({ session }) => {
         if (requestee) {
             try {
                 if (!user) throw Error(NO_SESSION_ERROR)
+                const now = new Date()
 
-                // get accepted and requested friendships from db
-                const accepted = await queryFriendships(FRIEND_STATUS.A)
-                const requested = await queryFriendships(FRIEND_STATUS.R)
+                // get friendships from db
+                const accepted = await queryFriendships(FRIEND_STATUS.A, true)
+                const requested = await queryFriendships(FRIEND_STATUS.R, true)
+                const declined = await queryFriendships(FRIEND_STATUS.D, true)
                 // check for existing accepted friendship
-                const existingAccepted = accepted.find(friend => (friend.id === requestee.id || friend.id === requestee.id))
+                const existingAccepted = accepted.find(friendship => (friendship.requester_id === requestee.id || friendship.requestee_id === requestee.id))
                 if (existingAccepted) throw Error(`You are already friends with ${requestee.username}`)
                 // check for existing requested friendship where user is the requester
-                const existingRequested = requested.find(friend => friend.id === requestee.id)
-                if (existingRequested) throw Error(`You have already sent a request to ${requestee.username}`)
+                const existingRequestSent = requested.find(friendship => friendship.requester_id === user.id && friendship.requestee_id === requestee.id)
+                if (existingRequestSent) throw Error(`You have already sent a request to ${requestee.username}`)
                 // check for existing requested friendship where user is the requestee
-                const doubleSidedRequest = requested.find(friend => friend.id === requestee.id)
+                const doubleSidedRequest = requested.find(friendship => (friendship.requester_id === requestee.id && friendship.requestee_id === user.id))
                 if (doubleSidedRequest) {
-                    // update in db
+                    // update in db to accepted
                     const { data, error } = await supabase  // eslint-disable-line
                         .from('friendship')
-                        .update({ status: FRIEND_STATUS.A })
+                        .update({ status: FRIEND_STATUS.A, last_modified: now.toISOString() })
                         .eq('requester_id', requestee.id)
                         .eq('requestee_id', user.id)
 
                     if (error) throw error
-                } else {
-                    // insert in db
+
+                    handleSuccess("Friend added")
+                    setFriendInput("")
+                    return
+                }
+                // check for existing declined friendship and if 5 min has passed since last try
+                const existingDeclined = declined.find(friendship => (friendship.requester_id === requestee.id || friendship.requestee_id === requestee.id))
+                const fiveMinutesAgo = new Date(now.getTime() - 5*60000)
+                const declinedEligible = existingDeclined && (existingDeclined.last_modified <= fiveMinutesAgo)
+                if (declinedEligible) {
+                    const userIsRequester = existingDeclined.requester_id === user.id
+                    // update in db to requested
                     const { data, error } = await supabase  // eslint-disable-line
                         .from('friendship')
-                        .insert({ requester_id: user.id, requestee_id: requestee.id, status: FRIEND_STATUS.R })
+                        .update({ status: FRIEND_STATUS.R, last_modified: now.toISOString() })
+                        .eq('requester_id', userIsRequester ? user.id : requestee.id)
+                        .eq('requestee_id', userIsRequester ? requestee.id : user.id)
 
                     if (error) throw error
+
+                    handleSuccess("Friend request sent")
+                    setFriendInput("")
+                    return
                 }
+                if (!declinedEligible && existingDeclined !== undefined) throw Error("You must wait 5 minutes before sending another request")
+
+                // insert request in db
+                const { data, error } = await supabase  // eslint-disable-line
+                    .from('friendship')
+                    .insert({ requester_id: user.id, requestee_id: requestee.id, status: FRIEND_STATUS.R })
+
+                if (error) throw error
 
                 handleSuccess("Friend request sent")
                 setFriendInput("")
