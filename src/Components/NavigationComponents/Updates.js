@@ -112,6 +112,7 @@ const Updates = ({ session }) => {
         }
         catch (error) {
             handleError(error.error_description || error.message)
+            return
         }
     }
 
@@ -132,7 +133,7 @@ const Updates = ({ session }) => {
                 </div>
             </button>
             {isOpen && 
-                <div className='w-1/2 h-2/4 overflow-y-auto bg-defaultBody rounded fixed border-2 border-routyneGold top-20 left-[40%] z-[200] md:w-1/4 md:left-[70%]'>
+                <div className='w-1/2 h-2/4 overflow-y-auto bg-defaultBody rounded fixed border-2 border-routyneGold top-20 left-[40%] z-[200] lg:w-1/4 lg:left-[70%]'>
                     <div className='flex flex-row'>
                         <div className='text-xl ml-7 my-4'>Updates</div>
                         <button className='text-xs w-8 h-8 absolute right-0 bg-white bg-opacity-0 hover:bg-opacity-5' onClick={() => setIsOpen(false)}>X</button>

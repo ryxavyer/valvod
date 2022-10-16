@@ -19,7 +19,7 @@ const Username = ({ session, username, initialStatus }) => {
     }, [status])
 
     return (
-        <div className='hidden flex-row rounded bg-white bg-opacity-5 self-center px-2 py-2 mx-2 sm:flex'>
+        <div className='hidden flex-row rounded bg-white bg-opacity-5 self-center px-2 py-2 mx-2 md:flex'>
             {getStatusImg(status)}
             <div className=' mx-1 self-center'>{username ? username : ""}</div>
         </div>

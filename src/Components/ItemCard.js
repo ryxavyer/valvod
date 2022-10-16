@@ -64,9 +64,11 @@ const ItemCard = ({ session, lists, items, listId, updateItems, handleError }) =
                             <div className='bg-itemColor rounded-sm w-full p-2.5 focus:outline-none' key={item.id}>
                                 {item.task}
                             </div>
-                            <button className="h-full rounded-sm text-xs bg-white bg-opacity-5 self-center p-4 hover:bg-emerald-800" key={`${item.id}_button`} onClick={() => deleteItem(item.id)}>
-                                <img className='w-4' src={checkmarkPNG} alt="Mark complete"></img>
-                            </button>
+                            <div>
+                                <button className="h-full rounded-sm text-xs bg-white bg-opacity-5 self-center p-4 hover:bg-emerald-800" key={`${item.id}_button`} onClick={() => deleteItem(item.id)}>
+                                    <img className='w-4' src={checkmarkPNG} alt="Mark complete"></img>
+                                </button>
+                            </div>
                         </div>
                     )
                 })}
