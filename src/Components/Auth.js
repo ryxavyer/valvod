@@ -1,9 +1,12 @@
 import { supabase } from '../supabaseClient';
 import routynePNG from '../static/routyne.png';
+import routyneHalloweenPNG from '../static/routyne_halloween.png';
 import googlePNG from '../static/google.png';
 import githubPNG from '../static/github-light.png'
 
 export default function Auth() {
+    const now = new Date()
+    const halloweenEndDate = new Date(`October 31, ${now.getFullYear()} 23:59:59`)
     const handleLogin = async (e, provider) => {
         e.preventDefault()
         try {
@@ -22,7 +25,7 @@ export default function Auth() {
             <div className='flex justify-center w-full h-screen'>
                 <div className="flex flex-col my-36">
                     <div className='self-center'>
-                        <img className='w-36 h-36 md:w-48 md:h-48' src={routynePNG} alt="routine"></img>
+                        <img className='w-36 h-36 md:w-48 md:h-48' src={halloweenEndDate > now ? routyneHalloweenPNG : routynePNG} alt="routine"></img>
                     </div>
                     <div className=''>
                         <div className='text-2xl text-white md:text-3xl'>Keep track of your daily tasks.</div>
