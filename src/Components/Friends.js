@@ -20,7 +20,11 @@ export const Friends = ({ session }) => {
     const [requests, setRequests] = useState([])
 
     useEffect(() => {
-        fetchFriendsList().then(() => {  setupListeners() })
+        setLoading(true)
+        fetchFriendsList().then(() => {  
+            setupListeners()
+            setLoading(false)
+        })
     }, []) // eslint-disable-line
 
     const handleSuccess = (message) => {
@@ -54,7 +58,6 @@ export const Friends = ({ session }) => {
 
     const fetchFriendsList = async () => {
         const { user } = session
-        setLoading(true)
         try {
             if (!user) throw Error(NO_SESSION_ERROR)
 
@@ -70,8 +73,6 @@ export const Friends = ({ session }) => {
         catch (error) {
             handleError(error.error_description || error.message)
             return
-        } finally {
-            setLoading(false)
         }
     }
 

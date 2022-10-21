@@ -27,3 +27,14 @@ export const getTimeToDisplay = (dateString) => {
     // if more than 2 days ago, return the date
     return then.toLocaleDateString()
 }
+
+export const makeSessionEndReadable = (sessionEndDate) => {
+    if (!sessionEndDate) {
+        return "On break"
+    }
+    const now = new Date()
+    const sessionEnd = new Date(sessionEndDate)
+    const minDiff = Math.ceil((Math.abs(sessionEnd - now)/1000)/60)
+    const prettyDiff = `${minDiff} min left`
+    return prettyDiff
+}

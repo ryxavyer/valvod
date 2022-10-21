@@ -72,6 +72,11 @@ const Session = ({ session, setInSessionView, activeListName }) => {
         setInSessionView(false)
     }
 
+    const getSessionEndTimestamp = (seconds) => {
+        const now = new Date()
+        return new Date(now.getTime() + seconds*1000)
+    }
+
     const updateTime = (newTime) => {
         document.title = newTime.h !== "00" ? `${newTime.h}:${newTime.m}:${newTime.s} - routyne` : `${newTime.m}:${newTime.s} - routyne`
         setTime(newTime)
@@ -127,6 +132,7 @@ const Session = ({ session, setInSessionView, activeListName }) => {
         sessionEndAlarm.play()
         setTimeout(() => {
             isWorking ? setBreakSeconds(initialBreakSeconds) : setWorkingSeconds(initialWorkingSeconds)
+            isWorking ? changeStatus(session.user, STATUS.WORKING, activeListName, null) : changeStatus(session.user, STATUS.WORKING, activeListName, getSessionEndTimestamp(initialWorkingSeconds))
             setIsWorking(!isWorking)
             setIsBreak(!isBreak)
             updateTime(secondsToTime(isWorking ? initialBreakSeconds : initialWorkingSeconds))
@@ -179,13 +185,13 @@ const Session = ({ session, setInSessionView, activeListName }) => {
     const startSession = () => {
         const { user } = session
         setIsWorking(true)
-        changeStatus(user, STATUS.WORKING, activeListName)
+        changeStatus(user, STATUS.WORKING, activeListName, getSessionEndTimestamp(initialWorkingSeconds))
         updateTime(secondsToTime(workingSeconds))
     }
 
     const endSession = () => {
         const { user } = session
-        changeStatus(user, STATUS.ONLINE)
+        changeStatus(user, STATUS.ONLINE, null, null)
         handleSessionXP()
         resetState()
     }

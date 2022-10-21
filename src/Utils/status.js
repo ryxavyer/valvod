@@ -27,25 +27,13 @@ export const getStatusImg = (status) =>  {
     }
 }
 
-export const changeStatus = async (user, status, activeListName) => {
-    // update user status/activeList in the database
-    if (status === STATUS.WORKING && activeListName) {
-        const { error } = await supabase
-            .from('users')
-            .update({ status: status, active_list_name: activeListName })
-            .eq('id', user.id)
-    
-        if (error) {
-            console.log(error)
-        }
-    } else {
-        const { error } = await supabase
-            .from('users')
-            .update({ status: status })
-            .eq('id', user.id)
-    
-        if (error) {
-            console.log(error)
-        }
+export const changeStatus = async (user, status, activeListName, sessionEndDate) => {
+    const { error } = await supabase
+        .from('users')
+        .update({ status: status, active_list_name: activeListName, current_session_end: sessionEndDate })
+        .eq('id', user.id)
+
+    if (error) {
+        console.log(error)
     }
 }

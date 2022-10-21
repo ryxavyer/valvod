@@ -60,9 +60,11 @@ const ListCard = ({ session, lists, updateLists, selectedIndex, setSelectedIndex
                             <div className={`${index === selectedIndex ? 'bg-routyneGold' : 'bg-itemColor'} rounded-sm w-full p-2.5 cursor-pointer focus:outline-none`} key={list.id} onClick={() => handleListClick(index, list.id)}>
                                 {list.name}
                             </div>
-                            <button className="h-[46px] rounded-sm text-xs bg-white bg-opacity-5 self-center p-4 hover:bg-red-900" key={`${list.id}_button`} onClick={() => deleteList(list.id)}>
-                                X
-                            </button>
+                            <div>
+                                <button className="h-full rounded-sm text-xs bg-white bg-opacity-5 self-center p-4 hover:bg-red-900" key={`${list.id}_button`} onClick={() => deleteList(list.id)}>
+                                    X
+                                </button>
+                            </div>
                         </div>
                     )
                 })}
