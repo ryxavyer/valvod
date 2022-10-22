@@ -74,7 +74,8 @@ const Session = ({ session, setInSessionView, activeListName }) => {
 
     const getSessionEndTimestamp = (seconds) => {
         const now = new Date()
-        return new Date(now.getTime() + seconds*1000)
+        const sessionEnd = new Date(now.getTime() + seconds*1000)
+        return sessionEnd.toISOString()
     }
 
     const updateTime = (newTime) => {
