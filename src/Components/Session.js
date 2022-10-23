@@ -132,9 +132,9 @@ const Session = ({ session, setInSessionView, activeListName }) => {
     const handleWorkBreakShift = () => {
         const { user } = session
         sessionEndAlarm.play()
+        changeStatus(user, STATUS.WORKING, activeListName, isWorking ? null : getSessionEndTimestamp(initialWorkingSeconds))
         setTimeout(() => {
             isWorking ? setBreakSeconds(initialBreakSeconds) : setWorkingSeconds(initialWorkingSeconds)
-            isWorking ? changeStatus(user, STATUS.WORKING, activeListName, null) : changeStatus(user, STATUS.WORKING, activeListName, getSessionEndTimestamp(initialWorkingSeconds))
             setIsWorking(!isWorking)
             setIsBreak(!isBreak)
             updateTime(secondsToTime(isWorking ? initialBreakSeconds : initialWorkingSeconds))

@@ -15,7 +15,7 @@ const FriendDiv = ({ friend }) => {
         .channel(`public:users:id=eq.${friend.id}`)
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'users', filter: `id=eq.${friend.id}` }, payload => {
             const updates = payload.new
-            if (updates && updates.status && updates.level) {
+            if (updates) {
                 clearInterval(timeLeftInterval)
                 setLevel(updates.level)
                 setStatus(updates.status)
