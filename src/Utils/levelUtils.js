@@ -1,7 +1,7 @@
 const BASE_XP_PER_LEVEL = 30
-const XP_GROWTH = 1.5
+const XP_GROWTH = 1.1
 
-function calculateTotalLevelXP(level) {
+export function calculateTotalLevelXP(level) {
     return (level * BASE_XP_PER_LEVEL * XP_GROWTH)
 }
 

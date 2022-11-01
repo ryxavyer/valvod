@@ -10,7 +10,7 @@ const Navigation = ({ session, username, status, level, xp, handleStatusUpdate, 
         <div className='flex flex-row border-routyneGold border-b-2 py-2'>
             <div className='self-center text-center mx-8 text-3xl'>routyne</div>
             <div className='flex flex-row justify-end w-full h-1/4 shadow-sm py-5 px-5'>
-                <Level session={session} initialLevel={level} xp={xp}/>
+                <Level session={session} initialLevel={level} initialXP={xp}/>
                 {/* <Motivation/> */}
                 <Username session={session} username={username} initialStatus={status}/>
                 <GoldDivider/>
