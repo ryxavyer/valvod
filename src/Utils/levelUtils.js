@@ -2,7 +2,7 @@ const BASE_XP_PER_LEVEL = 30
 const XP_GROWTH = 1.1
 
 export function calculateTotalLevelXP(level) {
-    return (level * BASE_XP_PER_LEVEL * XP_GROWTH)
+    return Math.round(level * BASE_XP_PER_LEVEL * XP_GROWTH)
 }
 
 export function getLevelProgress(level, xp) {
@@ -18,7 +18,7 @@ export function getUpdatedLevelProgress(level, xp) {
         for (let i=level; i<updatedLevel; i++) {
             totalXPforLevels += calculateTotalLevelXP(i)
         }
-        const updatedXP = xp - totalXPforLevels
+        const updatedXP = Math.round(xp - totalXPforLevels)
 
         return {updatedLevel: updatedLevel, updatedXP: updatedXP}
     }
