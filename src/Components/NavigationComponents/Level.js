@@ -26,7 +26,7 @@ const Level = ({ session, initialLevel, initialXP }) => {
         <div className='flex flex-col justify-around w-36 mx-2'>
             <div className={`rounded-lg w-3/12 ${getLevelColorClass(level)} self-center text-center`}>{level}</div>
             <div className='rounded-full w-full bg-white bg-opacity-5 self-center text-center'>
-                <div className={`inline float-right mx-1 w-auto self-center text-center text-xs`}>{`${xp}/${calculateTotalLevelXP(level)}`}</div>
+                <div className={`inline float-right mx-1 w-auto self-center text-center text-xs`}>{`${xp}/${Math.trunc(calculateTotalLevelXP(level))}`}</div>
                 <div className={`rounded-full bg-green-500 text-xs leading-none py-2 ${levelClass}`}></div>
             </div>
         </div>
