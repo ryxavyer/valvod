@@ -14,9 +14,11 @@ export const Friends = ({ session }) => {
     const [messageTimeout, setMessageTimeout] = useState(null)
     const [success, setSuccess] = useState(null)
     const [error, setError] = useState(null)
-    const [formOpen, setFormOpen] = useState(false)
+    const [offlineOpen, setOfflineOpen] = useState(false)
+    const [requestsOpen, setRequestsOpen] = useState(false)
     const [friendInput, setFriendInput] = useState("")
-    const [friends, setFriends] = useState([])
+    const [onlineFriends, setOnlineFriends] = useState([])
+    const [offlineFriends, setOfflineFriends] = useState([])
     const [requests, setRequests] = useState([])
 
     useEffect(() => {
@@ -49,21 +51,14 @@ export const Friends = ({ session }) => {
         )
     }
 
-    const sortFriendsByStatus = (a, b) => {
-        if (a.status === STATUS.OFFLINE) return 1
-        if (b.status === STATUS.OFFLINE) return -1
-
-        return 0
-    }
-
     const fetchFriendsList = async () => {
         const { user } = session
         try {
             if (!user) throw Error(NO_SESSION_ERROR)
 
             const friends = await queryFriendships(FRIEND_STATUS.A, false)
-            if (!friends) setFormOpen(true)
-            !friends ? setFriends([]) : setFriends(friends.sort(sortFriendsByStatus))
+            !friends ? setOnlineFriends([]) : setOnlineFriends(friends.filter(friend => friend.status == STATUS.ONLINE || friend.status == STATUS.WORKING))
+            !friends ? setOfflineFriends([]) : setOfflineFriends(friends.filter(friend => friend.status == STATUS.OFFLINE))
 
             const requests = await queryRequests()
             !requests ? setRequests([]) : setRequests(requests)
@@ -186,10 +181,6 @@ export const Friends = ({ session }) => {
         }
     }
 
-    const toggleFormOpen = () => {
-        setFormOpen(!formOpen)
-    }
-
     const updateFriendInput = (e) => {
         const input = (e.target.value).toString().trim()
         setFriendInput(input)
@@ -301,63 +292,83 @@ export const Friends = ({ session }) => {
 
     return (
         <div className='hidden my-8 flex-col w-1/3 bg-defaultBody z-[100] lg:max-w-md lg:flex'>
-            <div className='flex flex-row'>
-                <div className='text-xl ml-5 my-2'>Friends</div>
-                <button className='w-10 h-6 ml-52 text-md text-center self-center rounded bg-white bg-opacity-5 hover:bg-opacity-10' onClick={() => toggleFormOpen()}>+</button>
+            <div>
+                <div className='flex flex-col mx-6'>
+                    {error && <ErrorMessage error={error}/>}
+                    {success && <SuccessMessage message={success}/>}
+                    <div>
+                        <form className="flex flex-row" onSubmit={(e) => addFriendSubmit(e)}>
+                            <input className="bg-transparent w-full border-b-2 self-center py-1 placeholder:text-white placeholder:text-sm focus:outline-none placeholder:opacity-50" placeholder='Add a friend by username...' value={friendInput} onChange={(e) => updateFriendInput(e)}></input>
+                            <button type='submit' hidden className="w-24 rounded-lg bg-routyneGold self-center py-2 hover:bg-routyneGoldLight">ADD</button>
+                        </form>
+                    </div>
+                </div>
             </div>
             {loading 
-             ? <LoadingSpinner divHeight={"16"} spinnerSize={"12"}/> 
-             :
+                ? <LoadingSpinner divHeight={"16"} spinnerSize={"12"}/> 
+                :
                 <div>
                     <div className='flex flex-col mx-6'>
-                        {error && <ErrorMessage error={error}/>}
-                        {success && <SuccessMessage message={success}/>}
-                        {formOpen &&
-                            <div>
-                                <form className="flex flex-row" onSubmit={(e) => addFriendSubmit(e)}>
-                                    <input className="bg-transparent w-full border-b-2 self-center py-1 placeholder:text-white placeholder:text-sm focus:outline-none placeholder:opacity-50" placeholder='Add a friend by username...' value={friendInput} onChange={(e) => updateFriendInput(e)}></input>
-                                    <button type='submit' hidden className="w-24 rounded-lg bg-routyneGold self-center py-2 hover:bg-routyneGoldLight">ADD</button>
-                                </form>
-                            </div>
+                        {onlineFriends.length !== 0 && 
+                            onlineFriends.map((friend, index) => {
+                                return (
+                                    <div key={index}>
+                                        <FriendDiv friend={friend}/>
+                                    </div>
+                                )
+                            })
                         }
-                        {friends.length !== 0 && 
-                        friends.map((friend, index) => {
-                            return (
-                                <div key={index}>
-                                    <FriendDiv friend={friend}/>
-                                </div>
-                            )
-                        })}
                     </div>
-                    <div className='my-2'></div>
-                    { requests.length !== 0 && 
-                        <div>
+                    {offlineFriends.length !== 0 &&
+                        <div className='flex flex-col mx-6'>
                             <div className='flex flex-row'>
-                                <div className='text-xl ml-7 my-2'>Requests</div>
+                                <button className='bg-transparent text-md my-1' onClick={() => setOfflineOpen(!offlineOpen)}>Offline</button>
+                                <span className='ml-1 text-xs rounded-lg bg-white bg-opacity-5 px-2 self-center text-center'>{offlineFriends.length}</span>
                             </div>
-                            <div className='flex flex-col mx-6'>
-                                {requests.map((request, index) => {
-                                    return (
-                                        <div key={request.id} className='flex flex-row'>
-                                            <div className='w-full h-auto mb-4 px-2 py-2 rounded-l bg-white bg-opacity-5 self-center text-md align-middle'>
-                                                <div className='flex flex-row mx-2'>
-                                                    <div>{request.username}</div>
-                                                </div>
+                            {offlineOpen &&
+                                <div>
+                                    {offlineFriends.map((friend, index) => {
+                                        return (
+                                            <div key={index}>
+                                                <FriendDiv friend={friend}/>
                                             </div>
-                                            <button className="h-auto px-4 mb-4 text-xs bg-white bg-opacity-5 hover:bg-emerald-800" onClick={() => updateRequestStatus(request.id, true)}>
-                                                <img className='w-4' src={checkmarkPNG} alt="accept"></img>
-                                            </button>
-                                            <button className="h-auto px-4 mb-4 rounded-r text-xs bg-white bg-opacity-5 hover:bg-red-900" onClick={() => updateRequestStatus(request.id, false)}>
-                                                X
-                                            </button>
-                                        </div>
-                                    )
-                                })}
+                                        )
+                                    })}
+                                </div>
+                            }
+                        </div>
+                    }
+                    {requests.length !== 0 && 
+                        <div className='flex flex-col mx-6'>
+                            <div className='flex flex-row'>
+                                <button className='bg-transparent text-md my-1' onClick={() => setRequestsOpen(!requestsOpen)}>Requests</button>
+                                <span className='ml-1 text-xs rounded-lg bg-white bg-opacity-5 px-2 self-center text-center'>{requests.length}</span>
                             </div>
+                            {requestsOpen &&
+                                <div>
+                                    {requests.map((request, index) => {
+                                        return (
+                                            <div key={request.id} className='flex flex-row'>
+                                                <div className='w-full h-auto mb-4 px-2 py-2 rounded-l bg-white bg-opacity-5 self-center text-md align-middle'>
+                                                    <div className='flex flex-row mx-2'>
+                                                        <div>{request.username}</div>
+                                                    </div>
+                                                </div>
+                                                <button className="h-auto px-4 mb-4 text-xs bg-white bg-opacity-5 hover:bg-emerald-800" onClick={() => updateRequestStatus(request.id, true)}>
+                                                    <img className='w-4' src={checkmarkPNG} alt="accept"></img>
+                                                </button>
+                                                <button className="h-auto px-4 mb-4 rounded-r text-xs bg-white bg-opacity-5 hover:bg-red-900" onClick={() => updateRequestStatus(request.id, false)}>
+                                                    X
+                                                </button>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            }
                         </div>
                     }
                 </div>
-            }
+                }
         </div>
     )
 }

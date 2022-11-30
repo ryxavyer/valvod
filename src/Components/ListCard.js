@@ -51,7 +51,7 @@ const ListCard = ({ session, lists, updateLists, selectedIndex, setSelectedIndex
         <div className='flex flex-col w-4/6 mx-auto my-8 md:w-1/4 md:mx-4'>
             <form onSubmit={(e) => saveNewList(e)} className="flex flex-row">
                 <input className="bg-transparent w-full border-b-2 self-center py-1 placeholder:text-white placeholder:text-sm placeholder:opacity-50 focus:outline-none" placeholder='Add a list...' value={newList} onChange={(e) => updateNewList(e)}></input>
-                <button type='submit' hidden className="w-24 rounded-lg bg-routyneGold self-center py-2 hover:bg-routyneGoldLight">CREATE</button>
+                <button type='submit' hidden className="w-12 bg-transparent border-b-2 py-1 self-center text-right text-white text-opacity-80">Add</button>
             </form>
             <div className="flex flex-col">
                 {lists.map((list, index) => {
