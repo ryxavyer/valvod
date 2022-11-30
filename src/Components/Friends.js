@@ -57,8 +57,8 @@ export const Friends = ({ session }) => {
             if (!user) throw Error(NO_SESSION_ERROR)
 
             const friends = await queryFriendships(FRIEND_STATUS.A, false)
-            !friends ? setOnlineFriends([]) : setOnlineFriends(friends.filter(friend => friend.status == STATUS.ONLINE || friend.status == STATUS.WORKING))
-            !friends ? setOfflineFriends([]) : setOfflineFriends(friends.filter(friend => friend.status == STATUS.OFFLINE))
+            !friends ? setOnlineFriends([]) : setOnlineFriends(friends.filter(friend => friend.status === STATUS.ONLINE || friend.status === STATUS.WORKING))
+            !friends ? setOfflineFriends([]) : setOfflineFriends(friends.filter(friend => friend.status === STATUS.OFFLINE))
 
             const requests = await queryRequests()
             !requests ? setRequests([]) : setRequests(requests)
