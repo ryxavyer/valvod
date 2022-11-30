@@ -7,11 +7,24 @@ import githubPNG from '../static/github-light.png'
 export default function Auth() {
     const now = new Date()
     const christmasEndDate = new Date(`December 26, ${now.getFullYear()} 23:59:59`)
+    const getURL = () => {
+        let url =
+          process.env.REACT_APP_VERCEL_URL ??
+          'http://localhost:3000/'
+        // include `https://` when not localhost
+        url = url.includes('http') ? url : `https://${url}`
+        // include trailing `/`
+        url = url.charAt(url.length - 1) === '/' ? url : `${url}/`
+        return url
+    }
     const handleLogin = async (e, provider) => {
         e.preventDefault()
         try {
             const { data, error } = await supabase.auth.signInWithOAuth({  // eslint-disable-line
                 provider: provider,
+                options: {
+                    redirectTo: getURL()
+                }
             })
             if (error) throw error
         } catch (error) {

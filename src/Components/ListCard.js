@@ -57,11 +57,11 @@ const ListCard = ({ session, lists, updateLists, selectedIndex, setSelectedIndex
                 {lists.map((list, index) => {
                     return (
                         <div className="flex flex-row mb-2" key={`${list.id}_div`}>
-                            <div className={`${index === selectedIndex ? 'bg-routyneGold' : 'bg-itemColor'} rounded-sm w-full p-2.5 cursor-pointer focus:outline-none`} key={list.id} onClick={() => handleListClick(index, list.id)}>
+                            <div className={`${index === selectedIndex ? 'bg-routyneGold' : 'bg-itemColor'} rounded-l-sm w-full p-2.5 cursor-pointer focus:outline-none`} key={list.id} onClick={() => handleListClick(index, list.id)}>
                                 {list.name}
                             </div>
                             <div>
-                                <button className="h-full rounded-sm text-xs bg-white bg-opacity-5 self-center p-4 hover:bg-red-900" key={`${list.id}_button`} onClick={() => deleteList(list.id)}>
+                                <button className="h-full rounded-r-sm text-xs bg-white bg-opacity-5 self-center p-4 hover:bg-red-900" key={`${list.id}_button`} onClick={() => deleteList(list.id)}>
                                     X
                                 </button>
                             </div>
