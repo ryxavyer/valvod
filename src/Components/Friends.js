@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 import checkmarkPNG from "../static/checkmark.png"
-import ErrorMessage from './ErrorMessage'
 import { FRIEND_STATUS } from '../Utils/friendStatus'
 import SuccessMessage from './SuccessMessage'
 import { DEFAULT_MSG_LENGTH, NO_SESSION_ERROR } from '../Utils/errorUtils'
@@ -9,11 +8,10 @@ import FriendDiv from './FriendDiv'
 import LoadingSpinner from './LoadingSpinner'
 import { STATUS } from '../Utils/status'
 
-export const Friends = ({ session }) => {
+export const Friends = ({ session, handleError }) => {
     const [loading, setLoading] = useState(false)
     const [messageTimeout, setMessageTimeout] = useState(null)
     const [success, setSuccess] = useState(null)
-    const [error, setError] = useState(null)
     const [offlineOpen, setOfflineOpen] = useState(false)
     const [requestsOpen, setRequestsOpen] = useState(false)
     const [friendInput, setFriendInput] = useState("")
@@ -36,17 +34,6 @@ export const Friends = ({ session }) => {
         }
         setMessageTimeout(setTimeout(() => {
             setSuccess(null)
-            }, DEFAULT_MSG_LENGTH)
-        )
-    }
-
-    const handleError = (error) => {
-        setError(error)
-        if (messageTimeout) {
-            clearTimeout(messageTimeout)
-        }
-        setMessageTimeout(setTimeout(() => {
-            setError(null)
             }, DEFAULT_MSG_LENGTH)
         )
     }
@@ -294,12 +281,11 @@ export const Friends = ({ session }) => {
         <div className='hidden my-8 flex-col w-1/3 bg-defaultBody z-[100] lg:max-w-md lg:flex'>
             <div>
                 <div className='flex flex-col mx-6'>
-                    {error && <ErrorMessage error={error}/>}
                     {success && <SuccessMessage message={success}/>}
                     <div>
                         <form className="flex flex-row" onSubmit={(e) => addFriendSubmit(e)}>
-                            <input className="bg-transparent w-full border-b-2 self-center py-1 placeholder:text-white placeholder:text-sm focus:outline-none placeholder:opacity-50" placeholder='Add a friend by username...' value={friendInput} onChange={(e) => updateFriendInput(e)}></input>
-                            <button type='submit' hidden className="w-24 rounded-lg bg-routyneGold self-center py-2 hover:bg-routyneGoldLight">ADD</button>
+                            <input className="bg-transparent w-full self-center placeholder:text-white placeholder:text-sm focus:outline-none placeholder:opacity-50" placeholder='Add a friend by username...' value={friendInput} onChange={(e) => updateFriendInput(e)}></input>
+                            <button type='submit' className="w-12 bg-transparent px-2 mb-2 self-center text-center text-white text-opacity-100" title="Add friend">{'↵'}</button>
                         </form>
                     </div>
                 </div>

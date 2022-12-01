@@ -49,7 +49,7 @@ const FriendDiv = ({ friend }) => {
     
     return (
         <div key={friend.id} className='flex flex-row'>
-            <div className='w-full h-auto mb-4 px-2 py-2 rounded bg-white bg-opacity-5 self-center text-md align-middle'>
+            <div className='w-full h-auto mb-2 px-2 py-2 rounded bg-white bg-opacity-5 self-center text-md align-middle'>
                 <div className="text-xs mr-1 float-left">
                     {statusIMG}
                 </div>

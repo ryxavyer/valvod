@@ -168,7 +168,7 @@ const Homepage = ({ session }) => {
                 <div className='flex flex-col mx-auto md:flex-row md:max-w-[1200px]'>
                   <ListCard session={session} lists={lists} updateLists={fetchLists} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex} handleListClick={handleListClick} handleError={handleError}/>
                   <ItemCard session={session} lists={lists} items={items} listId={selectedListId} updateItems={fetchItems} handleError={handleError}/>
-                  <Friends session={session}/>
+                  <Friends session={session} handleError={handleError}/>
                 </div>
               </div>
             }
