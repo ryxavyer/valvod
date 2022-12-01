@@ -47,7 +47,8 @@ const Item = ({ session, item, deleteItem, handleError }) => {
         }
     }
 
-    const saveNewSubitem = async () => {
+    const saveNewSubitem = async (e) => {
+        e.preventDefault()
         const cleanedSubitem = newSubitem.trim()
         if (cleanedSubitem === "") {
             handleError("You must give new sub-items a name")
@@ -100,7 +101,7 @@ const Item = ({ session, item, deleteItem, handleError }) => {
             </div>
             <div className="flex flex-col ml-8" key={`${item.id}_subitems_div`}>
                 {subitemFormOpen && 
-                    <form onSubmit={(e) => saveNewSubitem()} className="flex flex-row">
+                    <form onSubmit={(e) => saveNewSubitem(e)} className="flex flex-row">
                         <input id={`${item.id}_newSubitemInput`} autoComplete="off" className="bg-transparent w-full self-center pt-2 placeholder:text-white placeholder:text-sm focus:outline-none placeholder:opacity-50" placeholder={'Add a sub-item'} value={newSubitem} onChange={(e) => updateNewSubitem(e)}></input>
                         <button type='submit' className="w-12 bg-transparent px-2 pt-2.5 self-center text-center text-white text-opacity-100" title="Add item">{'↵'}</button>
                     </form>
