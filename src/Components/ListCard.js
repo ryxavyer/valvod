@@ -50,18 +50,18 @@ const ListCard = ({ session, lists, updateLists, selectedIndex, setSelectedIndex
     return (
         <div className='flex flex-col w-4/6 mx-auto my-8 md:w-1/4 md:mx-4'>
             <form onSubmit={(e) => saveNewList(e)} className="flex flex-row">
-                <input className="bg-transparent w-full border-b-2 self-center py-1 placeholder:text-white placeholder:text-sm placeholder:opacity-50 focus:outline-none" placeholder='Add a list...' value={newList} onChange={(e) => updateNewList(e)}></input>
-                <button type='submit' hidden className="w-12 bg-transparent border-b-2 py-1 self-center text-right text-white text-opacity-80">Add</button>
+                <input className="bg-transparent w-full self-center placeholder:text-white placeholder:text-sm placeholder:opacity-50 focus:outline-none" placeholder='Add a list' value={newList} onChange={(e) => updateNewList(e)}></input>
+                <button type='submit' className="w-10 bg-transparent px-2 self-center text-center text-white">{'↵'}</button>
             </form>
             <div className="flex flex-col">
                 {lists.map((list, index) => {
                     return (
-                        <div className="flex flex-row mb-2" key={`${list.id}_div`}>
+                        <div className="flex flex-row mt-2" key={`${list.id}_div`}>
                             <div className={`${index === selectedIndex ? 'bg-routyneGold' : 'bg-itemColor'} rounded-l-sm w-full p-2.5 cursor-pointer focus:outline-none`} key={list.id} onClick={() => handleListClick(index, list.id)}>
                                 {list.name}
                             </div>
                             <div>
-                                <button className="h-full rounded-r-sm text-xs bg-white bg-opacity-5 self-center p-4 hover:bg-red-900" key={`${list.id}_button`} onClick={() => deleteList(list.id)}>
+                                <button className="h-full rounded-r-sm text-xs bg-white bg-opacity-5 self-center p-4 hover:bg-red-900" key={`${list.id}_button`} title="Mark Complete" onClick={() => deleteList(list.id)}>
                                     X
                                 </button>
                             </div>
