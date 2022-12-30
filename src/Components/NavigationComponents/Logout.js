@@ -1,7 +1,7 @@
 import { supabase } from '../../supabaseClient'
 import { STATUS } from '../../Utils/status'
 
-const Logout = ({ handleStatusUpdate, setError }) => {
+const Logout = ({ handleStatusUpdate, handleError }) => {
     const handleLogout = async (e) => {
         e.preventDefault()
         try {
@@ -9,7 +9,8 @@ const Logout = ({ handleStatusUpdate, setError }) => {
             const { error } = await supabase.auth.signOut()
             if (error) throw error
         } catch (error) {
-            setError(error)
+            handleError(error.error_description || error.message)
+            return
         } finally {
         }
     }

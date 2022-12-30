@@ -3,8 +3,9 @@ import Username from './Username'
 import Level from './Level'
 import Updates from './Updates'
 import GoldDivider from '../GoldDivider'
+import Theme from './Theme'
 
-const Navigation = ({ session, username, status, level, xp, handleStatusUpdate, setError}) => {
+const Navigation = ({ session, username, status, level, xp, setInSessionView, handleStatusUpdate, handleError }) => {
 
     return (
         <div className='flex flex-row border-routyneGold border-b-2 py-2'>
@@ -15,7 +16,8 @@ const Navigation = ({ session, username, status, level, xp, handleStatusUpdate, 
                 <Username session={session} username={username} initialStatus={status}/>
                 <GoldDivider/>
                 <Updates session={session}/>
-                <Logout handleStatusUpdate={handleStatusUpdate} setError={setError}/>
+                {/* <Theme session={session}/> */}
+                <Logout handleStatusUpdate={handleStatusUpdate} setError={handleError}/>
             </div>
         </div>
       )

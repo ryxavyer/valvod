@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { supabase } from "../supabaseClient"
 
-const ListCard = ({ session, lists, updateLists, selectedIndex, setSelectedIndex, handleListClick, handleError }) => {
+const ListCard = ({ session, lists, updateLists, selectedIndex, setSelectedIndex, handleListClick, handleSessionClick, handleError }) => {
     const [newList, setNewList] = useState("")
 
     const updateNewList = (e) => {
@@ -61,7 +61,13 @@ const ListCard = ({ session, lists, updateLists, selectedIndex, setSelectedIndex
                                 {list.name}
                             </div>
                             <div>
-                                <button className="h-full rounded-r-sm text-xs bg-white bg-opacity-5 self-center p-4 hover:bg-red-900" key={`${list.id}_button`} title="Mark Complete" onClick={() => deleteList(list.id)}>
+                                <button className={`h-full text-xs ${index === selectedIndex ? 'bg-routyneGold' : 'bg-itemColor'} self-center p-4 hover:bg-opacity-90`} key={`${list.id}_session_button`} title="Start a Session" onClick={() => handleSessionClick(index, list.id)}>
+                                    {'➤'}
+                                    {/* {'🡢'} */}
+                                </button>
+                            </div>
+                            <div>
+                                <button className="h-full rounded-r-sm text-xs bg-white bg-opacity-5 self-center p-4 hover:bg-red-900" key={`${list.id}_complete_button`} title="Mark Complete" onClick={() => deleteList(list.id)}>
                                     X
                                 </button>
                             </div>

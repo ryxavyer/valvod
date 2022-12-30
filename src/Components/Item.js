@@ -91,7 +91,7 @@ const Item = ({ session, item, deleteItem, handleError }) => {
                     {item.task}
                 </div>
                 <div className="flex flex-row" key={`${item.id}_buttons_div`}>
-                    <button className="h-full rounded-r-sm text-md bg-white bg-opacity-5 self-center py-2 px-4 hover:bg-opacity-10" key={`${item.id}_subitem_button`} title="Add sub-items" onClick={() => handleFormOpen()}>
+                    <button className="h-full text-md bg-white bg-opacity-5 self-center py-2 px-4 hover:bg-opacity-10" key={`${item.id}_subitem_button`} title="Add sub-items" onClick={() => handleFormOpen()}>
                         +
                     </button>
                     <button className="h-full rounded-r-sm bg-white bg-opacity-5 self-center py-2 px-4 hover:bg-emerald-800" key={`${item.id}_delete_button`} title="Mark Complete" onClick={() => deleteItem(item.id)}>
@@ -114,7 +114,7 @@ const Item = ({ session, item, deleteItem, handleError }) => {
                             </div>
                             <div key={`${subitem.id}_buttons_div`}>
                                 <button className="h-full rounded-r-sm bg-white bg-opacity-5 self-center py-2 px-4 hover:bg-emerald-800" key={`${subitem.id}_button`} title="Mark Complete" onClick={() => deleteSubitem(subitem.id)}>
-                                    <img className="w-[18px]" src={CheckmarkPNG} alt="Mark Complete" key={`${subitem.id}_checkmark`}></img>
+                                    <img className="w-[18px] max-w-4" src={CheckmarkPNG} alt="Mark Complete" key={`${subitem.id}_checkmark`}></img>
                                 </button>
                             </div>
                         </div>

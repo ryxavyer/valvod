@@ -201,8 +201,8 @@ const Session = ({ session, setInSessionView, activeListName }) => {
     return (
         <div>
             {!isWorking && !isBreak &&
-                <button className="w-full h-12 self-center text-sm rounded bg-white bg-opacity-5 hover:bg-opacity-10 focus:outline-white" onClick={() => handleExit()}>
-                    Exit Session
+                <button className="absolute mx-8 my-8 px-6 py-4 self-center text-xl rounded bg-white bg-opacity-5 hover:bg-opacity-10 focus:outline-white" title="Exit Session" onClick={() => handleExit()}>
+                    {'🡠'}
                 </button>
             }
             {error && <ErrorMessage error={error}/>}

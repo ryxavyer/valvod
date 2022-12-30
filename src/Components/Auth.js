@@ -1,12 +1,9 @@
 import { supabase } from '../supabaseClient';
 import routynePNG from '../static/routyne.png';
-import routyneChristmasPNG from '../static/routyne_christmas.png';
 import googlePNG from '../static/google.png';
 import githubPNG from '../static/github-light.png'
 
 export default function Auth() {
-    const now = new Date()
-    const christmasEndDate = new Date(`December 26, ${now.getFullYear()} 23:59:59`)
     const getURL = () => {
         let url =
           process.env.REACT_APP_VERCEL_URL ??
@@ -38,7 +35,7 @@ export default function Auth() {
             <div className='flex justify-center w-full h-screen'>
                 <div className="flex flex-col my-36">
                     <div className='self-center'>
-                        <img className='w-36 h-36 md:w-48 md:h-48' src={christmasEndDate > now ? routyneChristmasPNG : routynePNG} alt="routine"></img>
+                        <img className='w-36 h-36 md:w-48 md:h-48' src={routynePNG} alt="routyne"></img>
                     </div>
                     <div className=''>
                         <div className='text-2xl text-white md:text-3xl'>Keep track of your daily tasks.</div>

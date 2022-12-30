@@ -126,7 +126,7 @@ const Updates = ({ session }) => {
 
     return (
         <div>
-            <button onClick={() => toggleOpen()}>
+            <button title="Updates" onClick={() => toggleOpen()}>
                 <div className='flex flex-row rounded bg-white bg-opacity-5 self-center px-2 py-2 mx-2 hover:bg-opacity-10'>
                     <NotificationPing hasUnread={hasUnread}/>
                     <img className='w-6' src={notificationPNG} alt="Updates"></img>

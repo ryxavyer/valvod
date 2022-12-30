@@ -50,11 +50,16 @@ const Homepage = ({ session }) => {
     changeStatus(user, status)
   }
 
-  const handleListClick = (index, id) => {
+  const handleListClick = async (index, id) => {
     if (index === selectedIndex || id === selectedListId) return
     setSelectedIndex(index)
     setSelectedListId(id)
-    fetchItems(id)
+    await fetchItems(id)
+  }
+
+  const handleSessionClick = async (index, id) => {
+    await handleListClick(index, id)
+    setInSessionView(true)
   }
 
   const fetchUserInfo = async () => {
@@ -152,21 +157,16 @@ const Homepage = ({ session }) => {
           <div>
             {inSessionView ? 
               <div>
-                <Navigation session={session} username={username} status={status} level={level} xp={xp} handleStatusUpdate={handleStatusUpdate} setError={setError}/>
+                <Navigation session={session} username={username} status={status} level={level} xp={xp} handleStatusUpdate={handleStatusUpdate} handleError={handleError}/>
                 <Session session={session} setInSessionView={setInSessionView} activeListName={lists[selectedIndex].name}/>
                 <ItemCard session={session} lists={lists} items={items} listId={selectedListId} updateItems={fetchItems} handleError={handleError}/>
               </div>
              :
               <div>
-                <Navigation session={session} username={username} status={status} level={level} xp={xp} handleStatusUpdate={handleStatusUpdate} setError={setError}/>
-                {lists.length !== 0 && items.length !== 0 &&
-                  <button className="w-full mb-4 h-12 self-center text-sm rounded bg-white bg-opacity-5 hover:bg-opacity-10 focus:outline-white" onClick={() => setInSessionView(true)}>
-                    Start a Session
-                  </button>
-                }
+                <Navigation session={session} username={username} status={status} level={level} xp={xp} setInSessionView={setInSessionView} handleStatusUpdate={handleStatusUpdate} handleError={handleError}/>
                 {error && <ErrorMessage error={error}/>}
                 <div className='flex flex-col mx-auto md:flex-row md:max-w-[1200px]'>
-                  <ListCard session={session} lists={lists} updateLists={fetchLists} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex} handleListClick={handleListClick} handleError={handleError}/>
+                  <ListCard session={session} lists={lists} updateLists={fetchLists} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex} handleListClick={handleListClick} handleSessionClick={handleSessionClick} handleError={handleError}/>
                   <ItemCard session={session} lists={lists} items={items} listId={selectedListId} updateItems={fetchItems} handleError={handleError}/>
                   <Friends session={session} handleError={handleError}/>
                 </div>
