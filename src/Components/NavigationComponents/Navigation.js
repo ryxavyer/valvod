@@ -3,7 +3,6 @@ import Username from './Username'
 import Level from './Level'
 import Updates from './Updates'
 import GoldDivider from '../GoldDivider'
-import Theme from './Theme'
 
 const Navigation = ({ session, username, status, level, xp, setInSessionView, handleStatusUpdate, handleError }) => {
 
