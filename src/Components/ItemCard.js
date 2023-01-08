@@ -93,7 +93,7 @@ const ItemCard = ({ theme, session, lists, items, listId, updateItems }) => {
         <div className="mx-auto w-full md:w-1/2 lg:w-1/2">
             {error && <Alert variant='outlined' severity='error' sx={{ width:"100%", marginY:2, marginX:"auto" }}>{error}</Alert>}
             <form onSubmit={(e) => saveNewItem(e)} className="flex flex-row">
-                <TextField disabled={lists.length === 0} size="small" variant="standard" fullWidth autoComplete="off"
+                <TextField disabled={lists.length === 0} size="small" variant="standard" fullWidth autoComplete="off" id="item_card_text_input"
                            label={lists.length === 0 ? 'You must have lists to add items' : 'Add an item'} value={newItem} onChange={(e) => updateNewItem(e)}
                            sx={{ marginRight:"4px", 
                                  '& .MuiInputLabel-root': {
@@ -110,10 +110,15 @@ const ItemCard = ({ theme, session, lists, items, listId, updateItems }) => {
                           }  
                     }} {...props}/>}
                     label="Add a Due Date"
-                    minDate={dayjs(new Date().toISOString())}
+                    disablePast
                     value={dueDate}
                     onChange={(newValue) => {
                         setDueDate(newValue)
+                    }}
+                    onAccept={(newDate) => {
+                        setTimeout(() => {
+                            document.getElementById("item_card_text_input").focus()
+                        }, 300)
                     }}
                 />
                 <button type='submit' hidden className="w-12 bg-transparent px-2 self-center text-center text-white text-lg text-opacity-100" title="Add Item">{'+'}</button>
