@@ -13,12 +13,6 @@ const Updates = ({ theme, session }) => {
     const [error, setError] = useState(null)
     const [updates, setUpdates] = useState([])
     const [unreadUpdates, setUnreadUpdates] = useState(0)
-    const updatesListener = supabase  // eslint-disable-line
-        .channel('public:updates')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table:'updates' }, payload => {
-            fetchUpdates()
-        })
-        .subscribe()
 
     useEffect(() => {
         fetchUpdates()
@@ -54,7 +48,7 @@ const Updates = ({ theme, session }) => {
                 const lastSeenDate = new Date(data.last_update_seen)
                 const latestUpdateDate = new Date(updates[0].created_at)
                 setHasUnread(lastSeenDate < latestUpdateDate)
-                setUnreadUpdates(updates.filter((u) => u.created_at > lastSeenDate).length)
+                setUnreadUpdates(updates.filter((u) => new Date(u.created_at) > lastSeenDate).length)
             }
         }
         catch (error) {
@@ -114,6 +108,12 @@ const Updates = ({ theme, session }) => {
         setIsOpen(!isOpen)
         setAnchorEl(e.currentTarget)
     }
+
+    const updatesListener = supabase  // eslint-disable-line
+        .channel('public:updates')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table:'updates' }, fetchUpdates)
+        .subscribe()
+
 
     return (
         <div>
