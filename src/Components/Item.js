@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../supabaseClient"
-import CheckmarkPNG from "../static/checkmark.png"
+import CheckIcon from '@mui/icons-material/Check'
+import { Button, Card, TextField, Typography } from "@mui/material"
+import { getThemeObject } from "../Utils/themeUtils"
+import { Add } from "@mui/icons-material"
 
-const Item = ({ session, item, deleteItem, handleError }) => {
+const Item = ({ theme, session, item, deleteItem, handleError }) => {
     const [subitems, setSubitems] = useState([])
     const [subitemFormOpen, setSubitemFormOpen] = useState(false)
     const [newSubitem, setNewSubitem] = useState("")
+    const themeObject = getThemeObject(theme)
+    const themeSecondary = themeObject.palette.secondary.main
 
     useEffect(() => {
         fetchSubitems()
@@ -86,36 +91,53 @@ const Item = ({ session, item, deleteItem, handleError }) => {
     
     return (
         <div className="flex flex-col" key={`${item.id}_outer_div`}>
-            <div className={`flex flex-row mt-2`} key={`${item.id}_item_div`}>
-                <div className='bg-itemColor rounded-l-sm w-full p-2.5 focus:outline-none' key={`${item.id}_task_div`}>
-                    {item.task}
+            <div className="flex flex-col mb-2">
+                <div className='flex flex-row justify-end w-full'>
+                    <Card sx={{ display:"flex", boxShadow:"none", borderRadius:"0px", minWidth:"200px", maxWidth:"1000px", width:"100%", overflowWrap:true, backgroundColor:themeSecondary, backgroundImage:"none" }} key={`${item.id}_task_div`}>
+                        <Typography sx={{ paddingX:"8px", paddingY:"10px", minWidth:"150px", maxWidth:"950px", width:"100%", overflowWrap:"break-word", }}>{item.task}</Typography>
+                    </Card>
+                    <div>
+                        <Button title="Add sub-items" sx={{ minWidth:"40px", height:"100%", borderRadius:"0px", backgroundColor:themeSecondary, color:"#fff", transition:"none"}} onClick={() => handleFormOpen()}>
+                            <Add style={{ fontSize:"18px", marginRight:"0px" }}/>
+                        </Button>
+                    </div>
+                    <div>
+                        <Button title="Mark Complete" sx={{ minWidth:"50px", height:"100%", borderRadius:"0px", backgroundColor:themeSecondary, color:"#fff", transition:"none"}} onClick={() => deleteItem(item.id)}>
+                            <CheckIcon style={{ fontSize:"16px"}}/>
+                        </Button>
+                    </div>
                 </div>
-                <div className="flex flex-row" key={`${item.id}_buttons_div`}>
-                    <button className="h-full text-md bg-white bg-opacity-5 self-center py-2 px-4 hover:bg-opacity-10" key={`${item.id}_subitem_button`} title="Add sub-items" onClick={() => handleFormOpen()}>
-                        +
-                    </button>
-                    <button className="h-full rounded-r-sm bg-white bg-opacity-5 self-center py-2 px-4 hover:bg-emerald-800" key={`${item.id}_delete_button`} title="Mark Complete" onClick={() => deleteItem(item.id)}>
-                        <img className="w-8" src={CheckmarkPNG} alt="Mark Complete" key={`${item.id}_checkmark`}></img>
-                    </button>
-                </div>
+                {item.due_date &&
+                    <div className="flex">
+                        <Typography color="text.secondary" sx={{ fontSize:"12px", }} key={`${item.id}_date_text`}>
+                            {`${new Date(item.due_date).toLocaleDateString()} @ ${new Date(item.due_date).toLocaleTimeString()}`}
+                        </Typography>
+                    </div>
+                }
             </div>
             <div className="flex flex-col ml-8" key={`${item.id}_subitems_div`}>
                 {subitemFormOpen && 
                     <form onSubmit={(e) => saveNewSubitem(e)} className="flex flex-row">
-                        <input id={`${item.id}_newSubitemInput`} autoComplete="off" className="bg-transparent w-full self-center pt-2 placeholder:text-white placeholder:text-sm focus:outline-none placeholder:opacity-50" placeholder={'Add a sub-item'} value={newSubitem} onChange={(e) => updateNewSubitem(e)}></input>
-                        <button type='submit' className="w-12 bg-transparent px-2 pt-2.5 self-center text-center text-white text-opacity-100" title="Add item">{'↵'}</button>
+                        <TextField id={`${item.id}_newSubitemInput`} size="small" variant="standard" fullWidth
+                           label='Add a sub-item' value={newSubitem} onChange={(e) => updateNewSubitem(e)}
+                           sx={{ '& .MuiInputLabel-root': {
+                                    fontSize:"14px",
+                                } 
+                            }}>
+                        </TextField>
+                        <button type='submit' hidden className="w-12 bg-transparent px-2 pt-2.5 self-center text-center text-white text-opacity-100" title="Add item">{'↵'}</button>
                     </form>
                 }
                 {subitems.map((subitem) => {
                     return (
-                        <div className="flex flex-row mt-2" key={`${subitem.id}_div`}>
-                            <div className='bg-itemColor rounded-l-sm w-full p-2.5 focus:outline-none' key={`${subitem.id}_task_div`}>
-                                {subitem.task}
-                            </div>
-                            <div key={`${subitem.id}_buttons_div`}>
-                                <button className="h-full rounded-r-sm bg-white bg-opacity-5 self-center py-2 px-4 hover:bg-emerald-800" key={`${subitem.id}_button`} title="Mark Complete" onClick={() => deleteSubitem(subitem.id)}>
-                                    <img className="w-[18px] max-w-4" src={CheckmarkPNG} alt="Mark Complete" key={`${subitem.id}_checkmark`}></img>
-                                </button>
+                        <div className='flex flex-row mb-2 justify-end w-full' key={`${item.id}_task_div`}>
+                            <Card sx={{ display:"flex", boxShadow:"none", borderRadius:"0px", minWidth:"200px", maxWidth:"1000px", width:"100%", overflowWrap:true, backgroundColor:themeSecondary, backgroundImage:"none" }} key={`${item.id}_task_card`}>
+                                <Typography sx={{ paddingX:"8px", paddingY:"10px", minWidth:"400px", maxWidth:"450px", overflowWrap:"break-word", }}>{subitem.task}</Typography>
+                            </Card>
+                            <div>
+                                <Button title="Mark Complete" key={`${subitem.id}_button`} sx={{ minWidth:"50px", height:"100%", borderRadius:"0px", backgroundColor:themeSecondary, color:"#fff", transition:"none"}} onClick={() => deleteSubitem(subitem.id)}>
+                                    <CheckIcon style={{ fontSize:"16px"}}/>
+                                </Button>
                             </div>
                         </div>
                     )

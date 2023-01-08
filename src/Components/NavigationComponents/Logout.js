@@ -1,7 +1,9 @@
 import { supabase } from '../../supabaseClient'
 import { STATUS } from '../../Utils/status'
+import LogoutIcon from '@mui/icons-material/Logout'
+import { Button } from '@mui/material'
 
-const Logout = ({ handleStatusUpdate, handleError }) => {
+const Logout = ({ theme, handleStatusUpdate, handleError }) => {
     const handleLogout = async (e) => {
         e.preventDefault()
         try {
@@ -16,9 +18,11 @@ const Logout = ({ handleStatusUpdate, handleError }) => {
     }
 
     return (
-        <button className="w-24 rounded bg-white bg-opacity-5 self-center py-2 mx-2 hover:bg-opacity-10" onClick={(event) => handleLogout(event)}>
-            logout
-        </button>
+        <Button title="Logout" onClick={(event) => handleLogout(event)}
+                sx={{ minWidth:"50px" }}
+        >
+            <LogoutIcon style={{ marginLeft: "3px"}}/>
+        </Button>
     )
 
 }

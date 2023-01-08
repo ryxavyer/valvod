@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import { getStatusImg } from '../../Utils/status'
 
-const Username = ({ session, username, initialStatus }) => {
+const Username = ({ theme, session, username, initialStatus }) => {
     const [status, setStatus] = useState(initialStatus)
     const { user } = session
     const statusListener = supabase  // eslint-disable-line
@@ -19,7 +19,7 @@ const Username = ({ session, username, initialStatus }) => {
     }, [status])
 
     return (
-        <div className='hidden flex-row rounded bg-white bg-opacity-5 self-center px-2 py-2 mx-2 md:flex'>
+        <div className={`hidden flex-row rounded ${theme === "light" ? 'bg-black bg-opacity-10' : 'bg-white bg-opacity-5'} self-center px-2 py-2 mx-2 md:flex`}>
             {getStatusImg(status)}
             <div className=' mx-1 self-center'>{username ? username : ""}</div>
         </div>

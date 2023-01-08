@@ -2,22 +2,27 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 import checkmarkPNG from "../static/checkmark.png"
 import { FRIEND_STATUS } from '../Utils/friendStatus'
-import SuccessMessage from './SuccessMessage'
 import { DEFAULT_MSG_LENGTH, NO_SESSION_ERROR } from '../Utils/errorUtils'
 import FriendDiv from './FriendDiv'
 import LoadingSpinner from './LoadingSpinner'
 import { STATUS } from '../Utils/status'
+import { Accordion, AccordionDetails, AccordionSummary, Alert, Badge, Drawer, TextField, Typography } from '@mui/material'
+import { Box } from '@mui/system'
+import { ExpandMore } from '@mui/icons-material'
+import { getThemeObject } from '../Utils/themeUtils'
 
-export const Friends = ({ session, handleError }) => {
+export const Friends = ({ theme, session }) => {
     const [loading, setLoading] = useState(false)
     const [messageTimeout, setMessageTimeout] = useState(null)
     const [success, setSuccess] = useState(null)
-    const [offlineOpen, setOfflineOpen] = useState(false)
-    const [requestsOpen, setRequestsOpen] = useState(false)
+    const [error, setError] = useState(null)
     const [friendInput, setFriendInput] = useState("")
     const [onlineFriends, setOnlineFriends] = useState([])
     const [offlineFriends, setOfflineFriends] = useState([])
     const [requests, setRequests] = useState([])
+    const themeObject = getThemeObject(theme)
+    const themeSecondary = themeObject.palette.secondary.main
+    const themeUnread = themeObject.palette.unread.main
 
     useEffect(() => {
         setLoading(true)
@@ -26,6 +31,17 @@ export const Friends = ({ session, handleError }) => {
             setLoading(false)
         })
     }, []) // eslint-disable-line
+
+    const handleError = (message) => {
+        setError(message)
+        if (messageTimeout) {
+            clearTimeout(messageTimeout)
+        }
+        setMessageTimeout(setTimeout(() => {
+            setError(null)
+            }, DEFAULT_MSG_LENGTH)
+        )
+    }
 
     const handleSuccess = (message) => {
         setSuccess(message)
@@ -278,84 +294,93 @@ export const Friends = ({ session, handleError }) => {
     }
 
     return (
-        <div className='hidden my-8 flex-col w-1/3 bg-defaultBody z-[100] lg:max-w-md lg:flex'>
-            <div>
-                <div className='flex flex-col mx-6'>
-                    {success && <SuccessMessage message={success}/>}
+        <Drawer anchor='right' variant="permanent"
+                sx={{display:{ xs:"none", sm:"none", md:"none", lg:"none", xl:"block"},
+                    width: 300,
+                    flexShrink: 1,
+                    [`& .MuiDrawer-paper`]: { width: 300, },
+                    }}>
+            <Box sx={{ overflow: 'auto', paddingY:3, marginTop:"80px" }}>
+                <div className='flex flex-col mx-4'>
+                    {error && <Alert variant="outlined" severity='error' sx={{ marginY:2, }}>{error}</Alert>}
+                    {success && <Alert variant="outlined" severity='success' sx={{ marginY:2, }}>{success}</Alert>}
                     <div>
                         <form className="flex flex-row" onSubmit={(e) => addFriendSubmit(e)}>
-                            <input className="bg-transparent w-full self-center placeholder:text-white placeholder:text-sm focus:outline-none placeholder:opacity-50" placeholder='Add a friend by username...' value={friendInput} onChange={(e) => updateFriendInput(e)}></input>
-                            <button type='submit' className="w-12 bg-transparent px-2 mb-2 self-center text-center text-white text-opacity-100" title="Add friend">{'↵'}</button>
+                            <TextField size="small" variant="standard" fullWidth autoComplete="off"
+                                    label='Add a friend by username' value={friendInput} onChange={(e) => updateFriendInput(e)}
+                                    sx={{ '& .MuiInputLabel-root': {
+                                        fontSize:"14px",
+                                    }}}>
+                            </TextField>
+                            <button type='submit' hidden className="w-12 bg-transparent px-2 mb-2 self-center text-center text-white text-lg text-opacity-100" title="Add Friend">{'+'}</button>
                         </form>
                     </div>
                 </div>
-            </div>
-            {loading 
+                {loading 
                 ? <LoadingSpinner divHeight={"16"} spinnerSize={"12"}/> 
                 :
                 <div>
-                    <div className='flex flex-col mx-6'>
-                        {onlineFriends.length !== 0 && 
-                            onlineFriends.map((friend, index) => {
-                                return (
-                                    <div key={index}>
-                                        <FriendDiv friend={friend}/>
-                                    </div>
-                                )
-                            })
-                        }
-                    </div>
+                    {onlineFriends.length !== 0 && 
+                        onlineFriends.map((friend, index) => {
+                            return (
+                                <div key={index} className="mx-4">
+                                    <FriendDiv theme={theme} friend={friend}/>
+                                </div>
+                            )
+                        })
+                    }
                     {offlineFriends.length !== 0 &&
-                        <div className='flex flex-col mx-6'>
-                            <div className='flex flex-row'>
-                                <button className='bg-transparent text-md my-1' onClick={() => setOfflineOpen(!offlineOpen)}>Offline</button>
-                                <span className='ml-1 text-xs rounded-lg bg-white bg-opacity-5 px-2 self-center text-center'>{offlineFriends.length}</span>
-                            </div>
-                            {offlineOpen &&
+                        <Accordion sx={{ background:"transparent", boxShadow:"none", marginY:2,}}>
+                            <AccordionSummary expandIcon={<ExpandMore/>}>
+                                <Badge badgeContent={offlineFriends.length} max={99} sx={{'& .MuiBadge-badge': { top:13, right:-22, paddingX:1, backgroundColor:themeSecondary, }, }}>
+                                    <Typography>Offline</Typography>
+                                </Badge>
+                            </AccordionSummary>
+                            <AccordionDetails>
                                 <div>
                                     {offlineFriends.map((friend, index) => {
                                         return (
                                             <div key={index}>
-                                                <FriendDiv friend={friend}/>
+                                                <FriendDiv theme={theme} friend={friend}/>
                                             </div>
                                         )
                                     })}
                                 </div>
-                            }
-                        </div>
+                            </AccordionDetails>
+                        </Accordion>
                     }
                     {requests.length !== 0 && 
-                        <div className='flex flex-col mx-6'>
-                            <div className='flex flex-row'>
-                                <button className='bg-transparent text-md my-1' onClick={() => setRequestsOpen(!requestsOpen)}>Requests</button>
-                                <span className='ml-1 text-xs rounded-lg bg-white bg-opacity-5 px-2 self-center text-center'>{requests.length}</span>
-                            </div>
-                            {requestsOpen &&
-                                <div>
-                                    {requests.map((request, index) => {
-                                        return (
-                                            <div key={request.id} className='flex flex-row'>
-                                                <div className='w-full h-auto mb-4 px-2 py-2 rounded-l bg-white bg-opacity-5 self-center text-md align-middle'>
-                                                    <div className='flex flex-row mx-2'>
-                                                        <div>{request.username}</div>
-                                                    </div>
+                        <Accordion sx={{ background:"transparent", boxShadow:"none", marginY:2,}}>
+                            <AccordionSummary expandIcon={<ExpandMore/>}>
+                                <Badge badgeContent={requests.length} max={99} sx={{'& .MuiBadge-badge': { top:13, right:-22, paddingX:1, backgroundColor:themeUnread, }, }}>
+                                    <Typography>Requests</Typography>
+                                </Badge>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                {requests.map((request, index) => {
+                                    return (
+                                        <div key={request.id} className='flex flex-row'>
+                                            <div className='w-full h-auto mb-4 px-2 py-2 rounded-l bg-white bg-opacity-5 self-center text-md align-middle'>
+                                                <div className='flex flex-row mx-2'>
+                                                    <div>{request.username}</div>
                                                 </div>
-                                                <button className="h-auto px-4 mb-4 text-xs bg-white bg-opacity-5 hover:bg-emerald-800" onClick={() => updateRequestStatus(request.id, true)}>
-                                                    <img className='w-4' src={checkmarkPNG} alt="accept"></img>
-                                                </button>
-                                                <button className="h-auto px-4 mb-4 rounded-r text-xs bg-white bg-opacity-5 hover:bg-red-900" onClick={() => updateRequestStatus(request.id, false)}>
-                                                    X
-                                                </button>
                                             </div>
-                                        )
-                                    })}
-                                </div>
-                            }
-                        </div>
+                                            <button className="h-auto px-4 mb-4 text-xs bg-white bg-opacity-5 hover:bg-emerald-800" onClick={() => updateRequestStatus(request.id, true)}>
+                                                <img className='w-4' src={checkmarkPNG} alt="accept"></img>
+                                            </button>
+                                            <button className="h-auto px-4 mb-4 rounded-r text-xs bg-white bg-opacity-5 hover:bg-red-900" onClick={() => updateRequestStatus(request.id, false)}>
+                                                X
+                                            </button>
+                                        </div>
+                                    )
+                                })}
+                            </AccordionDetails>
+                        </Accordion>
                     }
                 </div>
                 }
-        </div>
+            </Box>
+        </Drawer>
     )
 }
 

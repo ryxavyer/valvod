@@ -1,6 +1,6 @@
-import { supabase } from '../supabaseClient';
-import routynePNG from '../static/routyne.png';
-import googlePNG from '../static/google.png';
+import { supabase } from '../supabaseClient'
+import routynePNG from '../static/routyne_transparent.png'
+import googlePNG from '../static/google.png'
 import githubPNG from '../static/github-light.png'
 
 export default function Auth() {

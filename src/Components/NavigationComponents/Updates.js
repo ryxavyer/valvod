@@ -1,29 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'
 import { supabase } from '../../supabaseClient'
-import notificationPNG from '../../static/notifications.png'
-import ErrorMessage from '../ErrorMessage';
-import { getTimeToDisplay } from '../../Utils/dateUtils';
-import { DEFAULT_MSG_LENGTH } from '../../Utils/errorUtils';
+import NewReleasesIcon from '@mui/icons-material/NewReleases'
+import { getTimeToDisplay } from '../../Utils/dateUtils'
+import { DEFAULT_MSG_LENGTH } from '../../Utils/errorUtils'
+import { Alert, Badge, Button, Card, CardContent, Divider, Menu, Typography } from '@mui/material'
 
-const NotificationPing = ({ hasUnread }) => {
-    return (
-        <div>
-        {hasUnread && 
-            <div>
-                <span className="animate-ping-slow absolute inline-flex h-3 w-3 mx-6 -my-3 rounded-full bg-routyneGoldLight opacity-75"></span>
-                <span className="absolute inline-flex rounded-full h-3 w-3 mx-6 -my-3 bg-routyneGold"></span>
-            </div>
-        }
-        </div>
-    )
-}
-
-const Updates = ({ session }) => {
+const Updates = ({ theme, session }) => {
     const [isOpen, setIsOpen] = useState(false)
+    const [anchorEl, setAnchorEl] = useState(null)
     const [hasUnread, setHasUnread] = useState(false)
     const [errorTimeout, setErrorTimeout] = useState(null)
     const [error, setError] = useState(null)
     const [updates, setUpdates] = useState([])
+    const [unreadUpdates, setUnreadUpdates] = useState(0)
     const updatesListener = supabase  // eslint-disable-line
         .channel('public:updates')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table:'updates' }, payload => {
@@ -65,6 +54,7 @@ const Updates = ({ session }) => {
                 const lastSeenDate = new Date(data.last_update_seen)
                 const latestUpdateDate = new Date(updates[0].created_at)
                 setHasUnread(lastSeenDate < latestUpdateDate)
+                setUnreadUpdates(updates.filter((u) => u.created_at > lastSeenDate).length)
             }
         }
         catch (error) {
@@ -116,46 +106,54 @@ const Updates = ({ session }) => {
         }
     }
 
-    const toggleOpen = () => {
+    const handleOpen = (e) => {
         if (hasUnread && !isOpen === true) {
             updateLastSeen()
             setHasUnread(false)
         }
         setIsOpen(!isOpen)
+        setAnchorEl(e.currentTarget)
     }
 
     return (
         <div>
-            <button title="Updates" onClick={() => toggleOpen()}>
-                <div className='flex flex-row rounded bg-white bg-opacity-5 self-center px-2 py-2 mx-2 hover:bg-opacity-10'>
-                    <NotificationPing hasUnread={hasUnread}/>
-                    <img className='w-6' src={notificationPNG} alt="Updates"></img>
-                </div>
-            </button>
-            {isOpen && 
-                <div className='w-1/2 h-2/4 overflow-y-auto bg-defaultBody rounded fixed border-2 border-routyneGold top-20 left-[40%] z-[200] lg:w-1/4 lg:left-[70%]'>
-                    <div className='flex flex-row'>
-                        <div className='text-xl ml-7 my-4'>Updates</div>
-                        <button className='text-xs w-8 h-8 absolute right-0 bg-white bg-opacity-0 hover:bg-opacity-5' onClick={() => setIsOpen(false)}>X</button>
-                    </div>
-                    <div className='my-2'></div>
-                    <div className='flex flex-col'>
-                        {error && <ErrorMessage error={error}/>}
-                    {updates.map((update, index) => {
-                        return (
-                            <div key={update.id} className='w-11/12 h-auto mb-4 px-2 py-2 rounded bg-white bg-opacity-5 self-center text-md align-middle'>
-                                <div className='text-sm'>
-                                    <div>{update.update}</div>
-                                </div>
-                                <div className="text-xs float-right mt-2">
-                                    {getTimeToDisplay(update.created_at)}
-                                </div>
-                            </div>
-                        )})}
-                    </div>
-                    <div className='my-2'></div>
-                </div>
-            }
+            <Badge badgeContent={unreadUpdates} color="unread" invisible={!hasUnread}
+                   sx={{'& .MuiBadge-badge': { top:10, right:10, }, }}>
+                <Button title="Updates" onClick={(e) => handleOpen(e)}
+                        sx={{ minWidth:"50px" }}
+                >
+                    <NewReleasesIcon sx={{ fontSize:"30px" }}/>
+                </Button>
+            </Badge>
+            <Menu open={isOpen} anchorEl={anchorEl} onClose={() => setIsOpen(false)}
+                    sx={{ maxWidth:"1000px", top:"10px",
+                        '& .MuiList-root': {
+                            paddingTop:"0px", paddingBottom:"0px", 
+                        }  
+                        }}
+            >
+                {error &&
+                    <Card sx={{ width:"400px", }}>
+                        <Alert variant="outlined" severity='error' sx={{ margin:2, }}>{error}</Alert>
+                    </Card>
+                }
+                {updates.map((update, index) => {
+                    return (
+                        <div key={`update_${index}_div`}>
+                            <Card key={`update_${index}_card`} sx={{ width:"400px", paddingBottom:"4px" }}>
+                                <CardContent key={`update_${index}_content`}>
+                                        <Typography sx={{ fontSize:"14px" }} key={`update_${index}_text`}>
+                                            {update.update}
+                                        </Typography>
+                                        <Typography color="text.secondary" sx={{ fontSize:"12px", float:"right" }} key={`update_${index}_date`}>
+                                            {getTimeToDisplay(update.created_at)}
+                                        </Typography>
+                                </CardContent>
+                            </Card>
+                            {index !== updates.length-1 ? <Divider/> : ""}
+                        </div>
+                    )})}
+            </Menu>
         </div>
     )
 

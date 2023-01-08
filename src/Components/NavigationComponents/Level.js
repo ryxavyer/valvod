@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import { calculateTotalLevelXP, getLevelColorClass, getLevelProgressClass } from '../../Utils/levelUtils'
 
-const Level = ({ session, initialLevel, initialXP }) => {
+const Level = ({ theme, session, initialLevel, initialXP }) => {
     const [level, setLevel] = useState(Math.round(initialLevel))
     const [levelClass, setLevelClass] = useState(getLevelProgressClass(initialLevel, initialXP))
     const [xp , setXP] = useState(Math.round(initialXP))
@@ -25,7 +25,7 @@ const Level = ({ session, initialLevel, initialXP }) => {
     return (
         <div className='flex flex-col justify-around w-36 mx-2'>
             <div className={`rounded-lg w-3/12 ${getLevelColorClass(level)} self-center text-center`}>{level}</div>
-            <div className='rounded-full w-full bg-white bg-opacity-5 self-center text-center'>
+            <div className={`rounded-full w-full ${theme === "light" ? 'bg-black bg-opacity-10' : 'bg-white bg-opacity-5'} self-center text-center`}>
                 <div className={`inline float-right mx-1 w-auto self-center text-center text-xs`}>{`${Math.trunc(xp)}/${Math.trunc(calculateTotalLevelXP(level))}`}</div>
                 <div className={`rounded-full bg-green-500 text-xs leading-none py-2 ${levelClass}`}></div>
             </div>

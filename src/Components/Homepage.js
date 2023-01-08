@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 import { STATUS, changeStatus } from '../Utils/status'
-import ErrorMessage from './ErrorMessage'
 import Navigation from './NavigationComponents/Navigation'
 import CreateUsername from './CreateUsername'
 import ListCard from './ListCard'
@@ -10,8 +9,9 @@ import Friends from './Friends'
 import { DEFAULT_MSG_LENGTH, NO_SESSION_ERROR } from '../Utils/errorUtils'
 import LoadingSpinner from './LoadingSpinner'
 import Session from './Session'
+import { Alert, Box } from '@mui/material'
 
-const Homepage = ({ session }) => {
+const Homepage = ({ session, theme, setTheme }) => {
   const [loading, setLoading] = useState(true)
   const [errorTimeout, setErrorTimeout] = useState(null)
   const [error, setError] = useState(null)
@@ -23,13 +23,14 @@ const Homepage = ({ session }) => {
   const [selectedListId, setSelectedListId] = useState(null)
   const [lists, setLists] = useState([])
   const [items, setItems] = useState([])
+  // const [listWarnings, setListWarnings] = useState({})
   const [inSessionView, setInSessionView] = useState(false)
 
   useEffect(() => {
     fetchUserInfo()
   }, []) // eslint-disable-line
 
-  window.addEventListener('beforeunload', () => {
+  window.addEventListener('beforeunload', () => {  // this is not very consistent
     handleStatusUpdate(STATUS.OFFLINE)
   })
 
@@ -77,12 +78,13 @@ const Homepage = ({ session }) => {
       if (error) throw error
 
       handleStatusUpdate(STATUS.ONLINE)
+      setTheme(data.chosen_theme)
       setUsername(data.username)
       setLevel(data.level)
       setXP(data.xp)
       fetchLists()
     } catch (error) {
-        setError(error.error_description || error.message)
+        handleError(error.error_description || error.message)
     } finally {
       setLoading(false)
     }
@@ -109,6 +111,7 @@ const Homepage = ({ session }) => {
       }
 
       setLists(data)
+      // getListWarnings(data)
       if (selectedListId === null || data[selectedIndex] === undefined) {
         setSelectedIndex(0)
         setSelectedListId(data[0].id)
@@ -121,6 +124,31 @@ const Homepage = ({ session }) => {
       return
     }
   }
+
+  // const getListWarnings = async (listData) => {
+  //   const listIds = listData.map((l) => l.id)
+  //   try{
+  //     let { data, error } = await supabase
+  //       .from('items')
+  //       .select('list_id, due_date')
+  //       .in('list_id', listIds)
+
+  //     if (error) throw error
+      
+  //     const warnings = {}
+  //     const twoDaysFromNow = new Date(new Date().getTime()+(2*24*60*60*1000))
+  //     data.forEach((i, index) => {
+  //       if (i.due_date && new Date(i.due_date) <= twoDaysFromNow) {
+  //         warnings[i.list_id] = true
+  //       }
+  //     })
+  //     setListWarnings(warnings)
+  //   }
+  //   catch (error) {
+  //     handleError(error.error_description || error.message)
+  //     return
+  //   }
+  // }
 
   const fetchItems = async (listId) => {
     const { user } = session
@@ -148,7 +176,7 @@ const Homepage = ({ session }) => {
 
   return (
     <div>
-      {loading ? <LoadingSpinner divHeight={"screen"} spinnerSize={"24"}/> 
+      {loading ? <LoadingSpinner divHeight={"screen"} spinnerSize={"12"}/> 
       :
         <div>
           {!username ? 
@@ -157,19 +185,24 @@ const Homepage = ({ session }) => {
           <div>
             {inSessionView ? 
               <div>
-                <Navigation session={session} username={username} status={status} level={level} xp={xp} handleStatusUpdate={handleStatusUpdate} handleError={handleError}/>
-                <Session session={session} setInSessionView={setInSessionView} activeListName={lists[selectedIndex].name}/>
-                <ItemCard session={session} lists={lists} items={items} listId={selectedListId} updateItems={fetchItems} handleError={handleError}/>
+                <Navigation theme={theme} setTheme={setTheme} session={session} username={username} status={status} level={level} xp={xp} handleStatusUpdate={handleStatusUpdate} handleError={handleError}/>
+                <Box component="main" sx={{ padding: 3, overflow: 'auto', marginTop:"80px" }}>
+                  {error && <Alert variant='outlined' severity='error' sx={{ width:"30%", marginY:2, marginX:"auto" }}>{error}</Alert>}
+                  <Session session={session} setInSessionView={setInSessionView} activeListName={lists[selectedIndex].name}/>
+                  <ItemCard theme={theme} session={session} lists={lists} items={items} listId={selectedListId} updateItems={fetchItems} handleError={handleError}/>
+                </Box>
               </div>
              :
               <div>
-                <Navigation session={session} username={username} status={status} level={level} xp={xp} setInSessionView={setInSessionView} handleStatusUpdate={handleStatusUpdate} handleError={handleError}/>
-                {error && <ErrorMessage error={error}/>}
-                <div className='flex flex-col mx-auto md:flex-row md:max-w-[1200px]'>
-                  <ListCard session={session} lists={lists} updateLists={fetchLists} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex} handleListClick={handleListClick} handleSessionClick={handleSessionClick} handleError={handleError}/>
-                  <ItemCard session={session} lists={lists} items={items} listId={selectedListId} updateItems={fetchItems} handleError={handleError}/>
-                  <Friends session={session} handleError={handleError}/>
-                </div>
+                <Navigation theme={theme} setTheme={setTheme} session={session} username={username} status={status} level={level} xp={xp} setInSessionView={setInSessionView} handleStatusUpdate={handleStatusUpdate} handleError={handleError}/>
+                <Box component="main" sx={{ padding: 3, overflow: 'auto', marginTop:"80px" }}>
+                  <Box sx={{ display:"flex", flexDirection:"row", flexWrap:'wrap', }}>
+                    {error && <Alert variant='outlined' severity='error' sx={{ width:"30%", marginY:2, marginX:"auto" }}>{error}</Alert>}
+                    <ListCard theme={theme} session={session} lists={lists} updateLists={fetchLists} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex} handleListClick={handleListClick} handleSessionClick={handleSessionClick} handleError={handleError}/>
+                    <ItemCard theme={theme} session={session} lists={lists} items={items} listId={selectedListId} updateItems={fetchItems} handleError={handleError}/>
+                    <Friends theme={theme} session={session} handleError={handleError}/>
+                  </Box>
+                </Box>
               </div>
             }
           </div>

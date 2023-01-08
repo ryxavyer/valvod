@@ -8,11 +8,11 @@ module.exports = {
           'motivation': '0px 5px 5px 3px rgba(0, 0, 0, 0.4)',
         },
         colors: {
-          'routyneGold': '#B68F61',
+          'routyneGold': '#607d8b',
           'routyneGoldLight': '#c29b6e',
-          'itemColor': '#6f584b',
+          'itemColor': '#37474f',
           'itemColorSelected': '#B68F61',
-          'defaultBody': '#393130',
+          'defaultBody': '#0A1929',
         },
         backgroundImage: {
           'online': 'url(./static/online.png)',

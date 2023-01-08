@@ -4,7 +4,7 @@ import { makeSessionEndReadable } from "../Utils/dateUtils";
 import { getLevelColorClass } from "../Utils/levelUtils";
 import { getStatusImg, STATUS } from "../Utils/status";
 
-const FriendDiv = ({ friend }) => {
+const FriendDiv = ({ theme, friend }) => {
     const [statusIMG, setStatusIMG] = useState(getStatusImg(friend.status))
     const [status, setStatus] = useState(friend.status)
     const [level, setLevel] = useState(friend.level)
@@ -49,7 +49,7 @@ const FriendDiv = ({ friend }) => {
     
     return (
         <div key={friend.id} className='flex flex-row'>
-            <div className='w-full h-auto mb-2 px-2 py-2 rounded bg-white bg-opacity-5 self-center text-md align-middle'>
+            <div className={`w-full h-auto mb-2 px-2 py-2 rounded ${theme === "light" ? 'bg-black bg-opacity-10' : 'bg-white bg-opacity-5'} self-center text-md align-middle`}>
                 <div className="text-xs mr-1 float-left">
                     {statusIMG}
                 </div>

@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react"
 import { getCorrespondingBreak, POMODORO_TIMER } from "../Utils/sessionUtils"
-import GoldDivider from "./GoldDivider"
 import alarm from "../audio/alarm.mp3"
 import { DEFAULT_MSG_LENGTH, NO_SESSION_ERROR } from "../Utils/errorUtils"
-import ErrorMessage from "./ErrorMessage"
 import { supabase } from "../supabaseClient"
 import { getUpdatedLevelProgress } from "../Utils/levelUtils"
 import { changeStatus, STATUS } from "../Utils/status"
+import { Alert, Button, Divider, MenuItem, Select } from "@mui/material"
+import { ArrowBack } from "@mui/icons-material"
 
 const DEFAULT_DOCUMENT_TITLE = "routyne"
 const WORKING_DEFAULT = 25*60
@@ -18,8 +18,10 @@ const Session = ({ session, setInSessionView, activeListName }) => {
     const [time, setTime] = useState(TIME_DEFAULT)
     const [timer, setTimer] = useState(0)
     const [workingSeconds, setWorkingSeconds] = useState(WORKING_DEFAULT)
+    const [workSelectValue, setWorkSelectValue] = useState(WORKING_DEFAULT/60)
     const [initialWorkingSeconds, setInitialWorkingSeconds] = useState(WORKING_DEFAULT)
     const [breakSeconds, setBreakSeconds] = useState(BREAK_DEFAULT)
+    const [breakSelectValue, setBreakSelectValue] = useState(BREAK_DEFAULT/60)
     const [initialBreakSeconds, setInitialBreakSeconds] = useState(BREAK_DEFAULT)
     const [isBreak, setIsBreak] = useState(false)
     const [isWorking, setIsWorking] = useState(false)
@@ -53,9 +55,9 @@ const Session = ({ session, setInSessionView, activeListName }) => {
         if (timer !== 0) clearTimeout(timer)
         setTimer(0)
         setWorkingSeconds(initialWorkingSeconds)
-        setWorkSelect(initialWorkingSeconds/60)
+        setWorkSelectValue(initialWorkingSeconds/60)
         setBreakSeconds(initialBreakSeconds)
-        setBreakSelect(initialBreakSeconds/60)
+        setBreakSelectValue(initialBreakSeconds/60)
         updateTime(secondsToTime(initialWorkingSeconds))
         document.title = DEFAULT_DOCUMENT_TITLE
     }
@@ -97,25 +99,16 @@ const Session = ({ session, setInSessionView, activeListName }) => {
         return {h: hours.toString(), m: minutes.toString(), s: seconds.toString()}
     }
 
-    const setWorkSelect = (v) => {
-        const workSelect = document.getElementById("work_select")
-        workSelect.value = v
-    }
-
-    const setBreakSelect = (v) => {
-        const breakSelect = document.getElementById("break_select")
-        breakSelect.value = v
-    }
-
     const handleWorkSelectChange = (e) => {
         const selected = e.target.value
         const selectedWork = Number(selected)
         const newBreakSeconds = getCorrespondingBreak(selectedWork)*60
 
-        setBreakSelect(getCorrespondingBreak(selectedWork))
+        setBreakSelectValue(getCorrespondingBreak(selectedWork))
         setBreakSeconds(newBreakSeconds)
         setInitialBreakSeconds(newBreakSeconds)
         setWorkingSeconds(selectedWork*60)
+        setWorkSelectValue(selectedWork)
         setInitialWorkingSeconds(selectedWork*60)
 
         updateTime(secondsToTime(selectedWork*60))
@@ -127,6 +120,7 @@ const Session = ({ session, setInSessionView, activeListName }) => {
 
         setBreakSeconds(selectedBreak*60)
         setInitialBreakSeconds(selectedBreak*60)
+        setBreakSelectValue(selectedBreak)
     }
 
     const handleWorkBreakShift = () => {
@@ -200,43 +194,46 @@ const Session = ({ session, setInSessionView, activeListName }) => {
 
     return (
         <div>
-            {!isWorking && !isBreak &&
-                <button className="absolute mx-8 my-8 px-6 py-4 self-center text-xl rounded bg-white bg-opacity-5 hover:bg-opacity-10 focus:outline-white" title="Exit Session" onClick={() => handleExit()}>
-                    {'🡠'}
-                </button>
-            }
-            {error && <ErrorMessage error={error}/>}
+            <div className="absolute">
+                <Button disabled={isWorking || isBreak} variant="outlined" title="Exit Session" onClick={() => handleExit()}
+                        sx={{ padding:2, marginX:2.5,  }}>
+                    <ArrowBack/>
+                </Button>
+            </div>
             <div className="flex flex-col">
-                <div className="mt-8 text-6xl self-center">
+                {error && <Alert variant='outlined' severity='error' sx={{ width:"30%", marginY:2, marginX:"auto" }}>{error}</Alert>}
+                <div className="text-6xl self-center">
                     {time.h !== "00" ? `${time.h}:${time.m}:${time.s}` : `${time.m}:${time.s}`}
                 </div>
                 <div className={isWorking || isBreak ? "flex flex-row my-6 self-center hidden" : "flex flex-row my-6 self-center"}>
                     <div className="pr-1">Work for</div>
-                    <select id="work_select" className="h-6 w-14 text-md rounded bg-white bg-opacity-5 hover:bg-opacity-10 focus:outline-white" onChange={(e) => handleWorkSelectChange(e)}>
+                    <Select id="work_select" value={workSelectValue} onChange={(e) => handleWorkSelectChange(e)} className="h-7 w-15">
                         {POMODORO_TIMER.WORK_LIST.map((value, index) => {
-                            return (<option key={`work_${index}`} className="text-black">{value}</option>)
+                            return <MenuItem value={value} key={`work_${index}`}>{value}</MenuItem>
                         })}
-                    </select>
+                    </Select>
                     <div className="px-1">min</div>
-                    <GoldDivider/>
+                    <Divider orientation='vertical' flexItem sx={{  marginX:"10px" }}/>
                     <div className="px-1">Break for</div>
-                    <select id="break_select" className="h-6 w-12 text-md rounded bg-white bg-opacity-5 hover:bg-opacity-10 focus:outline-white" onChange={(e) => handleBreakSelectChange(e)}>
+                    <Select id="break_select" value={breakSelectValue} onChange={(e) => handleBreakSelectChange(e)} className="h-7 w-15">
                         {POMODORO_TIMER.BREAK_LIST.map((value, index) => {
-                            return (<option key={`break_${index}`} className="text-black">{value}</option>)
+                            return <MenuItem value={value} key={`break_${index}`}>{value}</MenuItem>
                         })}
-                    </select>
+                    </Select>
                     <div className="pl-1">min</div>
                 </div>
                 <div className="self-center">
                 {isWorking || isBreak
                  ? 
-                    <button className="h-10 w-36 mt-4 text-md rounded bg-red-800 bg-opacity-40 hover:bg-opacity-60 focus:outline-white" onClick={() => endSession()}>
+                    <Button variant="outlined" disableElevation color="error" onClick={() => endSession()}
+                            sx={{ marginY:2, }}>
                         End Session
-                    </button>
+                    </Button>
                  :
-                    <button className="h-10 w-36 text-md rounded bg-white bg-opacity-5 hover:bg-opacity-10 focus:outline-white" onClick={() => startSession()}>
+                    <Button variant="contained" disableElevation onClick={() => startSession()}
+                            sx={{ marginBottom:2, }}>
                         Start Session
-                    </button>
+                    </Button>
                 }
                 </div>
             </div>
