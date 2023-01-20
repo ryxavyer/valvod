@@ -1,8 +1,8 @@
+import { Alert, Button, Input } from "@mui/material"
 import { useState } from "react"
 import { supabase } from '../supabaseClient'
 import { DEFAULT_MSG_LENGTH } from "../Utils/errorUtils"
 import { validateUsername } from "../Utils/usernameValidation"
-import ErrorMessage from "./ErrorMessage"
 
 const CreateUsername = ({ session, setUsername }) => {
     const [error, setError] = useState(null)
@@ -49,14 +49,14 @@ const CreateUsername = ({ session, setUsername }) => {
     }
 
     return (
-        <div className="flex flex-col flex-wrap justify-center w-full h-screen">
-            <div className="text-xl self-center text-center">What do your friends call you?</div>
-            {error && <ErrorMessage error={error}/>}
-            <form className="flex flex-col" onSubmit={(e) => saveUsername(e)}>
-                <input className="w-72 bg-transparent border-b-2 self-center text-center my-5 py-1 focus:outline-none" value={usernameInput} onChange={(e) => updateUsername(e)}></input>
-                <button className="w-48 rounded bg-routyneGold self-center my-12 py-2 hover:bg-routyneGoldLight" onClick={(e) => saveUsername(e)}>GET STARTED</button>
-            </form>
-        </div>
+    <div className="flex flex-col flex-wrap justify-center w-full h-screen">
+        {error && <Alert variant="outlined" severity='error' sx={{ marginX:"auto", marginY:2, width:"25%" }}>{error}</Alert>}
+        <div className="text-xl self-center text-center">What do your friends call you?</div>
+        <form className="flex flex-col w-1/4 self-center" onSubmit={(e) => saveUsername(e)}>
+            <Input sx={{marginY:4,}} fullWidth value={usernameInput} onChange={(e) => updateUsername(e)}></Input>
+            <Button variant='outlined' onClick={(e) => saveUsername(e)}>GET STARTED</Button>
+        </form>
+    </div>
     )
 
 }

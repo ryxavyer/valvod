@@ -30,6 +30,15 @@ const getTheme = (theme) => {
             warning: {
                 main: '#fdd835'
             },
+            online:{
+                main: '#31EC69'
+            },
+            working: {
+                main: "#B68F61"
+            },
+            offline: {
+                main: "#0C0C0C"
+            },
             background: {
                 default: '#e0e0e0',
                 paper: '#e0e0e0',
@@ -52,6 +61,15 @@ const getTheme = (theme) => {
             },
             warning: {
                 main: '#fdd835'
+            },
+            online:{
+                main: '#31EC69'
+            },
+            working: {
+                main: "#B68F61"
+            },
+            offline: {
+                main: "#0C0C0C"
             },
             background: {
                 default: '#0A1929',
@@ -79,6 +97,15 @@ const getTheme = (theme) => {
             warning: {
                 main: '#fdd835'
             },
+            online:{
+                main: '#31EC69'
+            },
+            working: {
+                main: "#B68F61"
+            },
+            offline: {
+                main: "#0C0C0C"
+            },
             background: {
                 default: '#393130',
                 paper: '#393130',
@@ -102,6 +129,15 @@ const getTheme = (theme) => {
         },
         warning: {
             main: '#fdd835'
+        },
+        online:{
+            main: '#31EC69'
+        },
+        working: {
+            main: "#B68F61"
+        },
+        offline: {
+            main: "#0C0C0C"
         },
         background: {
             default: '#212121',
