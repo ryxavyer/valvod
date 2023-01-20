@@ -295,8 +295,8 @@ export const Friends = ({ theme, session }) => {
 
     return (
         <Drawer anchor='right' variant="permanent"
-                sx={{display:{ xs:"none", sm:"none", md:"none", lg:"none", xl:"block"},
-                    width: 300,
+                sx={{display:{ xs:"none", sm:"none", md:"none", lg:"block",},
+                    width: 280,
                     flexShrink: 1,
                     [`& .MuiDrawer-paper`]: { width: 300, },
                     }}>

@@ -81,7 +81,7 @@ const ListCard = ({ theme, session, lists, listWarnings, updateLists, selectedIn
     }
 
     return (
-        <div className="mx-auto w-full md:w-1/3 lg:w-1/3 2xl:w-1/4">
+        <div className="mx-auto w-full md:w-1/3 lg:w-1/4 2xl:w-1/4">
             {error && <Alert variant='outlined' severity='error' sx={{ width:"100%", marginY:2, marginX:"auto" }}>{error}</Alert>}
             <form onSubmit={(e) => saveNewList(e)} className="flex flex-row">
                 <TextField size="small" variant="standard" fullWidth autoComplete="off"
