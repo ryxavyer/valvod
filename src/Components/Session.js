@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { getCorrespondingBreak, POMODORO_TIMER } from "../Utils/sessionUtils"
 import alarm from "../audio/alarm.mp3"
 import { DEFAULT_MSG_LENGTH, NO_SESSION_ERROR } from "../Utils/errorUtils"
@@ -7,6 +7,16 @@ import { getUpdatedLevelProgress } from "../Utils/levelUtils"
 import { changeStatus, STATUS } from "../Utils/status"
 import { Alert, Button, Divider, MenuItem, Select } from "@mui/material"
 import { ArrowBack } from "@mui/icons-material"
+import ReactCanvasConfetti from 'react-canvas-confetti'
+
+const confettiCanvasStyles = {
+    position: "fixed",
+    pointerEvents: "none",
+    width: "100%",
+    height: "100%",
+    top: 0,
+    left: 0,
+}
 
 const DEFAULT_DOCUMENT_TITLE = "routyne"
 const WORKING_DEFAULT = 25*60
@@ -26,6 +36,7 @@ const Session = ({ session, setInSessionView, activeListName }) => {
     const [isBreak, setIsBreak] = useState(false)
     const [isWorking, setIsWorking] = useState(false)
     const [totalWorkingSeconds, setTotalWorkingSeconds] = useState(0)
+    const refAnimationInstance = useRef(null)
 
     const sessionEndAlarm = new Audio(alarm)
     sessionEndAlarm.volume = 0.2
@@ -48,6 +59,70 @@ const Session = ({ session, setInSessionView, activeListName }) => {
         }
         return () => clearTimeout(timer)
     }, [time]) // eslint-disable-line
+
+    const getInstance = useCallback((instance) => {
+        refAnimationInstance.current = instance
+    }, [])
+
+    const makeShot = useCallback((particleRatio, opts) => {
+        refAnimationInstance.current &&
+          refAnimationInstance.current({
+            ...opts,
+            particleCount: Math.floor(200 * particleRatio)
+          })
+      }, [])
+    
+      const fireConfetti = useCallback(() => {
+        makeShot(0.25, {
+            spread: 50,
+            startVelocity: 60,
+            angle: 30,
+            origin: { y: 0.3, x:0, },
+        })
+        makeShot(0.50, {
+            spread: 60,
+            startVelocity: 80,
+            angle: 20,
+            origin: { y: 0.3, x:0, },
+        })
+        makeShot(0.50, {
+            spread: 60,
+            startVelocity: 80,
+            angle: 20,
+            origin: { y: 0.5, x:0, },
+        })
+        makeShot(0.50, {
+            spread: 60,
+            startVelocity: 80,
+            angle: 20,
+            origin: { y: 0.8, x:0, },
+        })
+
+        makeShot(0.25, {
+            spread: 50,
+            startVelocity: 60,
+            angle: 170,
+            origin: { y: 0.3, x:1, },
+        })
+        makeShot(0.50, {
+            spread: 60,
+            startVelocity: 80,
+            angle: 150,
+            origin: { y: 0.3, x:1, },
+        })
+        makeShot(0.50, {
+            spread: 60,
+            startVelocity: 80,
+            angle: 150,
+            origin: { y: 0.5, x:1, },
+        })
+        makeShot(0.50, {
+            spread: 60,
+            startVelocity: 80,
+            angle: 150,
+            origin: { y: 0.8, x:1, },
+        })
+      }, [makeShot])
 
     const resetState = () => {
         setIsWorking(false)
@@ -164,7 +239,10 @@ const Session = ({ session, setInSessionView, activeListName }) => {
             let currLevel = Number(data.level)
             let currXP = Number(data.xp) + Math.ceil(totalWorkingSeconds / 60)
 
-            let { updatedLevel, updatedXP} = getUpdatedLevelProgress(currLevel, currXP)
+            let { updatedLevel, updatedXP } = getUpdatedLevelProgress(currLevel, currXP)
+            if (currLevel !== updatedLevel) {
+                fireConfetti()
+            }
             let updatedSessionData = await supabase
                 .from("users")
                 .update({level: updatedLevel, xp: updatedXP})
@@ -194,6 +272,7 @@ const Session = ({ session, setInSessionView, activeListName }) => {
 
     return (
         <div>
+            <ReactCanvasConfetti refConfetti={getInstance} style={confettiCanvasStyles} />
             <div className="absolute">
                 <Button disabled={isWorking || isBreak} variant="outlined" title="Exit Session" onClick={() => handleExit()}
                         sx={{ padding:2, marginX:2.5,  }}>
