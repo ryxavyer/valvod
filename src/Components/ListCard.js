@@ -5,13 +5,16 @@ import StartIcon from '@mui/icons-material/Start'
 import { getThemeObject } from "../Utils/themeUtils"
 import { Alert, Button, Card, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Typography } from "@mui/material"
 import { DEFAULT_MSG_LENGTH } from "../Utils/errorUtils"
+import { Edit } from "@mui/icons-material"
 
 const ListCard = ({ theme, session, lists, listWarnings, updateLists, selectedIndex, setSelectedIndex, handleListClick, handleSessionClick }) => {
     const [newList, setNewList] = useState("")
     const [errorTimeout, setErrorTimeout] = useState(null)
     const [error, setError] = useState(null)
+    const [editModalOpen, setEditModalOpen] = useState(false)
     const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-    const [deleteModalList, setDeleteModalList] = useState("")
+    const [newName, setNewName] = useState("")
+    const [modalList, setModalList] = useState({})
     const themeObject = getThemeObject(theme)
     const themePrimary = themeObject.palette.primary[500]
     const themeSecondary = themeObject.palette.secondary.main
@@ -56,14 +59,40 @@ const ListCard = ({ theme, session, lists, listWarnings, updateLists, selectedIn
         updateLists()
     }
 
-    const openDeleteModal = (list) => {
+    const openEditModal = (list) => {
+        setEditModalOpen(true)
+        setModalList(list)
+        setNewName(list.name)
+    }
+    
+    const handleNewNameSave = (id) => {
+        updateListName(id)
+        setEditModalOpen(false)
+    }
+
+    const handleDeleteModalOpen = () => {
+        setEditModalOpen(false)
         setDeleteModalOpen(true)
-        setDeleteModalList(list)
     }
 
     const handleDeleteModalConfirm = (id) => {
         deleteList(id)
         setDeleteModalOpen(false)
+    }
+
+    const updateListName = async (id) => {
+        const cleanedNewName = newName.trim()
+        try {
+            const { error } = await supabase
+                .from("lists")
+                .update({name: cleanedNewName})
+                .eq("id", id)
+            if (error) throw error
+        } catch (error) {
+            handleError(error.error_description || error.message)
+            return
+        }
+        updateLists()
     }
 
     const deleteList = async (id) => {
@@ -78,6 +107,11 @@ const ListCard = ({ theme, session, lists, listWarnings, updateLists, selectedIn
             return
         }
         updateLists()
+    }
+
+    const updateNewName = (e) => {
+        const input = (e.target.value).toString()
+        setNewName(input)
     }
 
     return (
@@ -112,24 +146,34 @@ const ListCard = ({ theme, session, lists, listWarnings, updateLists, selectedIn
                                     </Button>
                                 </div>
                                 <div>
-                                    <Button title="Delete List" sx={{ minWidth:"30px", height:"100%", borderRadius:"0px", backgroundColor:index === selectedIndex ? themePrimary : themeSecondary, color:"#fff", transition:"none"}} onClick={() => openDeleteModal(list)}>
-                                        X
+                                    <Button title="Edit List" sx={{ minWidth:"30px", height:"100%", borderRadius:"0px", backgroundColor:index === selectedIndex ? themePrimary : themeSecondary, color:"#fff", transition:"none"}} onClick={() => openEditModal(list)}>
+                                        <Edit fontSize="12px"/>
                                     </Button>
                                 </div>
                             </div>
                         </div>
                     )
                 })}
+                <Dialog sx={{'& .MuiDialog-paper': {minWidth: "450px",}}} open={editModalOpen} onClose={() => setEditModalOpen(false)}>
+                    <DialogTitle>Editing "{modalList.name}"</DialogTitle>
+                    <DialogContent>
+                        <TextField variant="standard" fullWidth autoComplete="off" label="List Name" value={newName} onChange={(e) => updateNewName(e)}></TextField>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="outlined" color="success" disableElevation disabled={modalList.name === newName || newName.trim() === ""} onClick={() => handleNewNameSave(modalList.id)}>Save Changes</Button>
+                        <Button variant="outlined" color="error" disableElevation onClick={() => handleDeleteModalOpen()}>Delete This List</Button>
+                    </DialogActions>
+                </Dialog>
                 <Dialog open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
-                    <DialogTitle>Are you sure you want to delete "{deleteModalList.name}"?</DialogTitle>
+                    <DialogTitle>Are you sure you want to delete "{modalList.name}"?</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            This action will delete the list and all associated items.<br></br>You will not be able to undo it at this time.
+                            This action will delete the list and all associated items. You will not be able to undo it at this time.
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
                         <Button variant="text" disableElevation onClick={() => setDeleteModalOpen(false)}>Save My List</Button>
-                        <Button variant="outlined" color="error" disableElevation onClick={() => handleDeleteModalConfirm(deleteModalList.id)}>Yes I'm Sure</Button>
+                        <Button variant="outlined" color="error" disableElevation onClick={() => handleDeleteModalConfirm(modalList.id)}>Yes I'm Sure</Button>
                     </DialogActions>
                 </Dialog>
             </div>
