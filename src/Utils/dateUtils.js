@@ -12,7 +12,7 @@ const getDifferenceString = (difference) => {
     if (hours < 1) return `${difference} min`
     if (hours >= 24) return "Yesterday"
 
-    return `${hours} hrs`
+    return `${hours} hr`
 }
 
 export const getTimeToDisplay = (dateString) => {
@@ -34,6 +34,9 @@ export const makeSessionEndReadable = (sessionEndDate) => {
     }
     const now = new Date()
     const sessionEnd = new Date(sessionEndDate)
+    if (now > sessionEnd) {
+        return "Away"
+    }
     const minDiff = Math.ceil((Math.abs(sessionEnd - now)/1000)/60)
     const prettyDiff = `${minDiff} min left`
     return prettyDiff

@@ -30,7 +30,8 @@ const Homepage = ({ session, theme, setTheme }) => {
     fetchUserInfo()
   }, []) // eslint-disable-line
 
-  window.addEventListener('beforeunload', () => {  // this is not very consistent
+  // this is not very consistent
+  window.addEventListener('beforeunload', () => {
     handleStatusUpdate(STATUS.OFFLINE)
   })
 
