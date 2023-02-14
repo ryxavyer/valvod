@@ -32,8 +32,8 @@ export const makeSessionEndReadable = (sessionEndDate) => {
     if (!sessionEndDate) {
         return "On break"
     }
-    const now = new Date()
-    const sessionEnd = new Date(sessionEndDate)
+    const now = new Date().getTime()
+    const sessionEnd = new Date(sessionEndDate).getTime()
     if (now > sessionEnd) {
         return "Away"
     }

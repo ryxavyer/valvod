@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { getCorrespondingBreak, POMODORO_TIMER } from "../Utils/sessionUtils"
 import alarm from "../audio/alarm.mp3"
+import confettiPop from "../audio/confetti_pop.mp3"
 import { DEFAULT_MSG_LENGTH, NO_SESSION_ERROR } from "../Utils/errorUtils"
 import { supabase } from "../supabaseClient"
 import { getUpdatedLevelProgress } from "../Utils/levelUtils"
@@ -39,7 +40,9 @@ const Session = ({ session, setInSessionView, activeListName }) => {
     const refAnimationInstance = useRef(null)
 
     const sessionEndAlarm = new Audio(alarm)
+    const confettiPopSound = new Audio(confettiPop)
     sessionEndAlarm.volume = 0.2
+    confettiPopSound.volume = 1
 
     useEffect(() => {
         if (isWorking && workingSeconds === 0) {
@@ -241,6 +244,7 @@ const Session = ({ session, setInSessionView, activeListName }) => {
 
             let { updatedLevel, updatedXP } = getUpdatedLevelProgress(currLevel, currXP)
             if (currLevel !== updatedLevel) {
+                confettiPopSound.play()
                 fireConfetti()
             }
             let updatedSessionData = await supabase
@@ -256,16 +260,16 @@ const Session = ({ session, setInSessionView, activeListName }) => {
         }
     } 
 
-    const startSession = () => {
+    const startSession = async () => {
         const { user } = session
+        await changeStatus(user, STATUS.WORKING, activeListName, getSessionEndTimestamp(initialWorkingSeconds))
         setIsWorking(true)
-        changeStatus(user, STATUS.WORKING, activeListName, getSessionEndTimestamp(initialWorkingSeconds))
         updateTime(secondsToTime(workingSeconds))
     }
 
-    const endSession = () => {
+    const endSession = async () => {
         const { user } = session
-        changeStatus(user, STATUS.ONLINE, null, null)
+        await changeStatus(user, STATUS.ONLINE, null, null)
         handleSessionXP()
         resetState()
     }

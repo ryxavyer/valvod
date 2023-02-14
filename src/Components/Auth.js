@@ -2,7 +2,7 @@ import { supabase } from '../supabaseClient'
 import routynePNG from '../static/routyne_transparent.png'
 import googlePNG from '../static/google.png'
 import githubPNG from '../static/github-light.png'
-import { Alert, Button, TextField } from '@mui/material'
+import { Alert, Button, TextField, Typography } from '@mui/material'
 import { useState } from 'react'
 import { DEFAULT_MSG_LENGTH } from '../Utils/errorUtils'
 
@@ -95,8 +95,8 @@ export default function Auth() {
                         <img className='w-36 h-36 md:w-48 md:h-48' src={routynePNG} alt="routyne"></img>
                     </div>
                     <div className=''>
-                        <div className='text-2xl text-white md:text-3xl'>Keep track of your daily tasks.</div>
-                        <div className='text-2xl text-[#d9b284] md:text-3xl'>Get more done.</div>
+                        <Typography variant='h4'>Keep track of your daily tasks.</Typography>
+                        <Typography variant='h4' color="primary">Get more done.</Typography>
                         <div className='flex flex-row mt-10'>
                             <Button sx={{background:"#161B22", border: 1, borderColor: '#161B22', 
                                          '&:hover': {
