@@ -58,7 +58,7 @@ const Session = ({ session, setInSessionView, activeListName }) => {
         if (isWorking || isBreak) {
             setTimer(setTimeout(() => {
                 countDown()
-            }, 1000))
+            }, document.hasFocus() ? 1000 : 500))
         }
         return () => clearTimeout(timer)
     }, [time]) // eslint-disable-line
