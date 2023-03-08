@@ -201,16 +201,17 @@ const Session = ({ session, setInSessionView, activeListName }) => {
         setBreakSelectValue(selectedBreak)
     }
 
-    const handleWorkBreakShift = () => {
+    const handleWorkBreakShift = (skippingBreak=false) => {
         const { user } = session
         sessionEndAlarm.play()
         changeStatus(user, STATUS.WORKING, activeListName, isWorking ? null : getSessionEndTimestamp(initialWorkingSeconds))
+        if (skippingBreak) clearTimeout(timer)
         setTimeout(() => {
             isWorking ? setBreakSeconds(initialBreakSeconds) : setWorkingSeconds(initialWorkingSeconds)
             setIsWorking(!isWorking)
             setIsBreak(!isBreak)
             updateTime(secondsToTime(isWorking ? initialBreakSeconds : initialWorkingSeconds))
-        }, 3000)
+        }, 2000)
     }
 
     const countDown = () => {
@@ -258,7 +259,7 @@ const Session = ({ session, setInSessionView, activeListName }) => {
             handleError(error.error_description || error.message)
             return
         }
-    } 
+    }
 
     const startSession = async () => {
         const { user } = session
@@ -306,13 +307,25 @@ const Session = ({ session, setInSessionView, activeListName }) => {
                     <div className="pl-1">min</div>
                 </div>
                 <div className="self-center">
-                {isWorking || isBreak
-                 ? 
+                {isWorking &&
                     <Button variant="outlined" disableElevation color="error" onClick={() => endSession()}
                             sx={{ marginY:2, }}>
                         End Session
                     </Button>
-                 :
+                }
+                {isBreak &&
+                    <div>
+                        <Button variant="outlined" disableElevation onClick={() => handleWorkBreakShift(true)}
+                                sx={{ margin:2, }}>
+                            Skip Break
+                        </Button>
+                        <Button variant="outlined" disableElevation color="error" onClick={() => endSession()}
+                                sx={{ marginY:2, }}>
+                            End Session
+                        </Button>
+                    </div>
+                }
+                {!isWorking && !isBreak &&
                     <Button variant="contained" disableElevation onClick={() => startSession()}
                             sx={{ marginBottom:2, }}>
                         Start Session
