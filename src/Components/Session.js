@@ -8,6 +8,7 @@ import { getUpdatedLevelProgress } from "../Utils/levelUtils"
 import { changeStatus, STATUS } from "../Utils/status"
 import { Alert, Button, Divider, MenuItem, Select } from "@mui/material"
 import { ArrowBack } from "@mui/icons-material"
+import TimerWorker from 'worker-loader!../timerWorker.js'  // eslint-disable-line
 import ReactCanvasConfetti from 'react-canvas-confetti'
 
 const confettiCanvasStyles = {
@@ -27,16 +28,19 @@ const TIME_DEFAULT = {h: "00", m: "25", s: "00"}
 const Session = ({ session, setInSessionView, activeListName }) => {
     const [error, setError] = useState(null)
     const [time, setTime] = useState(TIME_DEFAULT)
-    const [timer, setTimer] = useState(0)
-    const [workingSeconds, setWorkingSeconds] = useState(WORKING_DEFAULT)
     const [workSelectValue, setWorkSelectValue] = useState(WORKING_DEFAULT/60)
     const [initialWorkingSeconds, setInitialWorkingSeconds] = useState(WORKING_DEFAULT)
-    const [breakSeconds, setBreakSeconds] = useState(BREAK_DEFAULT)
     const [breakSelectValue, setBreakSelectValue] = useState(BREAK_DEFAULT/60)
     const [initialBreakSeconds, setInitialBreakSeconds] = useState(BREAK_DEFAULT)
     const [isBreak, setIsBreak] = useState(false)
     const [isWorking, setIsWorking] = useState(false)
     const [totalWorkingSeconds, setTotalWorkingSeconds] = useState(0)
+    const isWorkingRef = useRef(isWorking)
+    const isBreakRef = useRef(isBreak)
+    const incrementTotalWorkingSeconds = useCallback(() => {
+        setTotalWorkingSeconds((prevTotalWorkingSeconds) => prevTotalWorkingSeconds + 1)
+    }, [])
+    const workerRef = useRef(null)
     const refAnimationInstance = useRef(null)
 
     const sessionEndAlarm = new Audio(alarm)
@@ -45,23 +49,39 @@ const Session = ({ session, setInSessionView, activeListName }) => {
     confettiPopSound.volume = 1
 
     useEffect(() => {
-        if (isWorking && workingSeconds === 0) {
-            clearTimeout(timer)
-            handleWorkBreakShift()
-            return
+        isWorkingRef.current = isWorking
+        isBreakRef.current = isBreak
+        if (!workerRef.current) {
+            initializeWorker()
         }
-        if (isBreak && breakSeconds === 0) {
-            clearTimeout(timer)
-            handleWorkBreakShift()
-            return
-        }
-        if (isWorking || isBreak) {
-            setTimer(setTimeout(() => {
-                countDown()
-            }, 1000))
-        }
-        return () => clearTimeout(timer)
-    }, [time]) // eslint-disable-line
+    }, [isWorking, isBreak]) // eslint-disable-line
+
+
+    const initializeWorker = () => {
+        workerRef.current = new TimerWorker()
+        workerRef.current.addEventListener('message', (event) => {
+            const data = event.data
+
+            if (data === 'done') {
+                // timer done so shift
+                if (isWorkingRef.current) {
+                    setIsWorking(false)
+                    setIsBreak(true)
+                }
+                if (isBreakRef.current) {
+                    setIsWorking(true)
+                    setIsBreak(false)
+                }
+                handleWorkBreakShift()
+            } else {
+                // update the time left
+                if (isWorkingRef.current) {
+                    incrementTotalWorkingSeconds()
+                }
+                updateTime(secondsToTime(data))
+            }
+        })
+    }
 
     const getInstance = useCallback((instance) => {
         refAnimationInstance.current = instance
@@ -130,11 +150,8 @@ const Session = ({ session, setInSessionView, activeListName }) => {
     const resetState = () => {
         setIsWorking(false)
         setIsBreak(false)
-        if (timer !== 0) clearTimeout(timer)
-        setTimer(0)
-        setWorkingSeconds(initialWorkingSeconds)
+        setTotalWorkingSeconds(0)
         setWorkSelectValue(initialWorkingSeconds/60)
-        setBreakSeconds(initialBreakSeconds)
         setBreakSelectValue(initialBreakSeconds/60)
         updateTime(secondsToTime(initialWorkingSeconds))
         document.title = DEFAULT_DOCUMENT_TITLE
@@ -183,12 +200,9 @@ const Session = ({ session, setInSessionView, activeListName }) => {
         const newBreakSeconds = getCorrespondingBreak(selectedWork)*60
 
         setBreakSelectValue(getCorrespondingBreak(selectedWork))
-        setBreakSeconds(newBreakSeconds)
         setInitialBreakSeconds(newBreakSeconds)
-        setWorkingSeconds(selectedWork*60)
         setWorkSelectValue(selectedWork)
         setInitialWorkingSeconds(selectedWork*60)
-
         updateTime(secondsToTime(selectedWork*60))
     }
 
@@ -196,35 +210,33 @@ const Session = ({ session, setInSessionView, activeListName }) => {
         const selected = e.target.value
         const selectedBreak = Number(selected)
 
-        setBreakSeconds(selectedBreak*60)
         setInitialBreakSeconds(selectedBreak*60)
         setBreakSelectValue(selectedBreak)
     }
 
-    const handleWorkBreakShift = (skippingBreak=false) => {
+    const skipBreak = () => {
         const { user } = session
         sessionEndAlarm.play()
-        changeStatus(user, STATUS.WORKING, activeListName, isWorking ? null : getSessionEndTimestamp(initialWorkingSeconds))
-        if (skippingBreak) clearTimeout(timer)
-        setTimeout(() => {
-            isWorking ? setBreakSeconds(initialBreakSeconds) : setWorkingSeconds(initialWorkingSeconds)
-            setIsWorking(!isWorking)
-            setIsBreak(!isBreak)
-            updateTime(secondsToTime(isWorking ? initialBreakSeconds : initialWorkingSeconds))
-        }, 2000)
+        changeStatus(user, STATUS.WORKING, activeListName, getSessionEndTimestamp(initialWorkingSeconds))
+        setIsWorking(true)
+        setIsBreak(false)
+        updateTime(secondsToTime(initialWorkingSeconds))
+        if (workerRef.current) {
+            workerRef.current.terminate()
+            workerRef.current = null
+        }
+        initializeWorker()
+        workerRef.current.postMessage({ type: 'start', workingSeconds: initialWorkingSeconds+1 })
     }
 
-    const countDown = () => {
-        let newSeconds = 0
-        if (isWorking) newSeconds = workingSeconds - 1
-        if (isBreak) newSeconds = breakSeconds - 1
-
-        const newTotal = isWorking ? totalWorkingSeconds + 1 : totalWorkingSeconds
-        setTotalWorkingSeconds(newTotal)
-
-        if (isWorking) setWorkingSeconds(newSeconds)
-        if (isBreak) setBreakSeconds(newSeconds)
-        updateTime(secondsToTime(newSeconds))
+    const handleWorkBreakShift = () => {
+        const { user } = session
+        sessionEndAlarm.play()
+        changeStatus(user, STATUS.WORKING, activeListName, isWorkingRef.current ? null : getSessionEndTimestamp(initialWorkingSeconds))
+        updateTime(secondsToTime(isWorking ? initialBreakSeconds : initialWorkingSeconds))
+        if (workerRef.current) {
+            workerRef.current.postMessage({ type: 'start', workingSeconds: isWorkingRef.current ? initialBreakSeconds+1 : initialWorkingSeconds+1})
+        }
     }
 
     const handleSessionXP = async () => {
@@ -265,7 +277,10 @@ const Session = ({ session, setInSessionView, activeListName }) => {
         const { user } = session
         await changeStatus(user, STATUS.WORKING, activeListName, getSessionEndTimestamp(initialWorkingSeconds))
         setIsWorking(true)
-        updateTime(secondsToTime(workingSeconds))
+        updateTime(secondsToTime(initialWorkingSeconds))
+        if (workerRef.current) {
+            workerRef.current.postMessage({ type: 'start', workingSeconds: initialWorkingSeconds+1 })
+        }
     }
 
     const endSession = async () => {
@@ -273,6 +288,10 @@ const Session = ({ session, setInSessionView, activeListName }) => {
         await changeStatus(user, STATUS.ONLINE, null, null)
         handleSessionXP()
         resetState()
+        if (workerRef.current) {
+            workerRef.current.terminate()
+            workerRef.current = null
+        }
     }
 
     return (
@@ -315,7 +334,7 @@ const Session = ({ session, setInSessionView, activeListName }) => {
                 }
                 {isBreak &&
                     <div>
-                        <Button variant="outlined" disableElevation onClick={() => handleWorkBreakShift(true)}
+                        <Button variant="outlined" disableElevation onClick={() => skipBreak()}
                                 sx={{ margin:2, }}>
                             Skip Break
                         </Button>
