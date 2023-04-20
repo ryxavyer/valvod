@@ -1,11 +1,12 @@
 import Logout from './Logout'
 import Username from './Username'
 import Level from './Level'
-import Updates from './Updates'
+// import Updates from './Updates'
 import Theme from './Theme'
+import WeeklyChallenges from './WeeklyChallenges'
 import { AppBar, Divider, Typography, Toolbar, Box } from '@mui/material'
 
-const Navigation = ({ theme, setTheme, session, username, status, level, xp, setInSessionView, handleStatusUpdate, handleError }) => {
+const Navigation = ({ theme, setTheme, session, username, status, level, xp, challenges, handleStatusUpdate, handleError }) => {
 
     return (
         <AppBar position="fixed" color={theme === 'light' ? "background" : ""} sx={{ backgroundImage:"none", boxShadow:"none", zIndex: (theme) => theme.zIndex.drawer + 1,  }}>
@@ -16,7 +17,8 @@ const Navigation = ({ theme, setTheme, session, username, status, level, xp, set
                         <Level theme={theme} session={session} initialLevel={level} initialXP={xp}/>
                         <Username theme={theme} session={session} username={username} initialStatus={status}/>
                         <Divider orientation='vertical' flexItem sx={{  marginX:"10px" }}/>
-                        <Updates theme={theme} session={session}/>
+                        <WeeklyChallenges challenges={challenges}/>
+                        {/* <Updates session={session}/> */}
                         <Theme theme={theme} setTheme={setTheme} session={session}/>
                         <Logout theme={theme} handleStatusUpdate={handleStatusUpdate} setError={handleError}/>
                     </Box> 

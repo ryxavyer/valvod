@@ -25,7 +25,7 @@ const WORKING_DEFAULT = 25*60
 const BREAK_DEFAULT = 5*60
 const TIME_DEFAULT = {h: "00", m: "25", s: "00"}
 
-const Session = ({ session, setInSessionView, activeListName }) => {
+const Session = ({ session, setInSessionView, activeListName, updateChallenges }) => {
     const [error, setError] = useState(null)
     const [time, setTime] = useState(TIME_DEFAULT)
     const [workSelectValue, setWorkSelectValue] = useState(WORKING_DEFAULT/60)
@@ -243,7 +243,7 @@ const Session = ({ session, setInSessionView, activeListName }) => {
         const { user } = session
         try {
             if (!user) throw Error(NO_SESSION_ERROR)
-
+            // update level and xp
             let { data, error } = await supabase
                 .from("users")
                 .select("level,xp")
@@ -252,8 +252,9 @@ const Session = ({ session, setInSessionView, activeListName }) => {
             
             if (error) throw error
 
+            const xpGainedFromChallenges = await updateChallenges(Math.ceil(totalWorkingSeconds / 60), {work: initialWorkingSeconds/60, break: initialBreakSeconds/60})
             let currLevel = Number(data.level)
-            let currXP = Number(data.xp) + Math.ceil(totalWorkingSeconds / 60)
+            let currXP = Number(data.xp) + Math.ceil(totalWorkingSeconds / 60) + xpGainedFromChallenges
 
             let { updatedLevel, updatedXP } = getUpdatedLevelProgress(currLevel, currXP)
             if (currLevel !== updatedLevel) {

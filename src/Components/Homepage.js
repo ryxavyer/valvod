@@ -10,6 +10,7 @@ import { DEFAULT_MSG_LENGTH, NO_SESSION_ERROR } from '../Utils/errorUtils'
 import LoadingSpinner from './LoadingSpinner'
 import Session from './Session'
 import { Alert, Box } from '@mui/material'
+import { getCurrentChallenges, updateChallengeProgress } from '../Utils/challengeUtils'
 
 const Homepage = ({ session, theme, setTheme }) => {
   const [loading, setLoading] = useState(true)
@@ -19,6 +20,7 @@ const Homepage = ({ session, theme, setTheme }) => {
   const [status, setStatus] = useState(STATUS.OFFLINE)
   const [level, setLevel] = useState(null)
   const [xp, setXP] = useState(0)
+  const [challenges, setChallenges] = useState({})
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [selectedListId, setSelectedListId] = useState(null)
   const [lists, setLists] = useState([])
@@ -83,7 +85,8 @@ const Homepage = ({ session, theme, setTheme }) => {
       setUsername(data.username)
       setLevel(data.level)
       setXP(data.xp)
-      fetchLists()
+      await fetchLists()
+      await fetchChallenges()
     } catch (error) {
         handleError(error.error_description || error.message)
     } finally {
@@ -124,6 +127,21 @@ const Homepage = ({ session, theme, setTheme }) => {
       handleError(error.error_description || error.message)
       return
     }
+  }
+
+  const fetchChallenges = async () => {
+    const { user } = session
+    const currentChallenges = await getCurrentChallenges(user)
+    setChallenges(currentChallenges)
+  }
+
+  const updateChallenges = async (xpEarned, workBreakPair) => {
+    const { user } = session
+    const { xpGained, updatedChallenges } = await updateChallengeProgress(user, xpEarned, workBreakPair)
+    if (updatedChallenges) {
+      setChallenges(updatedChallenges)
+    }
+    return xpGained
   }
 
   // const getListWarnings = async (listData) => {
@@ -186,16 +204,16 @@ const Homepage = ({ session, theme, setTheme }) => {
           <div>
             {inSessionView ? 
               <div>
-                <Navigation theme={theme} setTheme={setTheme} session={session} username={username} status={status} level={level} xp={xp} handleStatusUpdate={handleStatusUpdate} handleError={handleError}/>
+                <Navigation theme={theme} setTheme={setTheme} session={session} username={username} status={status} level={level} xp={xp} challenges={challenges} handleStatusUpdate={handleStatusUpdate} handleError={handleError}/>
                 <Box component="main" sx={{ padding: 3, overflow: 'auto', marginTop:"80px" }}>
                   {error && <Alert variant='outlined' severity='error' sx={{ width:"30%", marginY:2, marginX:"auto" }}>{error}</Alert>}
-                  <Session session={session} setInSessionView={setInSessionView} activeListName={lists[selectedIndex].name}/>
+                  <Session session={session} setInSessionView={setInSessionView} activeListName={lists[selectedIndex].name} updateChallenges={updateChallenges}/>
                   <ItemCard theme={theme} session={session} lists={lists} items={items} listId={selectedListId} updateItems={fetchItems} handleError={handleError}/>
                 </Box>
               </div>
              :
               <div>
-                <Navigation theme={theme} setTheme={setTheme} session={session} username={username} status={status} level={level} xp={xp} setInSessionView={setInSessionView} handleStatusUpdate={handleStatusUpdate} handleError={handleError}/>
+                <Navigation theme={theme} setTheme={setTheme} session={session} username={username} status={status} level={level} xp={xp} challenges={challenges} handleStatusUpdate={handleStatusUpdate} handleError={handleError}/>
                 <Box component="main" sx={{ padding: 3, overflow: 'auto', marginTop:"80px" }}>
                   <Box sx={{ display:"flex", flexDirection:"row", flexWrap:'wrap', }}>
                     {error && <Alert variant='outlined' severity='error' sx={{ width:"30%", marginY:2, marginX:"auto" }}>{error}</Alert>}

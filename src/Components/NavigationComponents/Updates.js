@@ -5,7 +5,7 @@ import { getTimeToDisplay } from '../../Utils/dateUtils'
 import { DEFAULT_MSG_LENGTH } from '../../Utils/errorUtils'
 import { Alert, Badge, Button, Card, CardContent, Divider, Menu, Typography } from '@mui/material'
 
-const Updates = ({ theme, session }) => {
+const Updates = ({ session }) => {
     const [isOpen, setIsOpen] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
     const [hasUnread, setHasUnread] = useState(false)
