@@ -61,6 +61,14 @@ export function getRandomChallenges() {
     return pickedChallenges
 }
 
+function getWeekNumber(date) {
+    const d = new Date(date)
+    d.setHours(0, 0, 0, 0)
+    d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7)
+    const week1 = new Date(d.getFullYear(), 0, 4)
+    return 1 + Math.round(((d - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7)
+}
+
 async function getAssignedChallenges(user) {
     try {
         const { data, error } = await supabase
@@ -74,21 +82,22 @@ async function getAssignedChallenges(user) {
         }
     
         if (!data || !data.start_date) {
-            return null
+            return { challenges: null, expired: false }
         }
 
-        const startDate = new Date(data.start_date)
+        const startDate = new Date(data.start_date);
+        const startWeekNumber = getWeekNumber(startDate)
         const currentDate = new Date()
-        const daysDifference = (currentDate - startDate) / (1000 * 60 * 60 * 24)
-    
-        if (daysDifference < 7 && startDate.getDay() <= currentDate.getDay()) {
-            return data.challenges
+        const currentWeekNumber = getWeekNumber(currentDate)
+
+        if (currentWeekNumber === startWeekNumber && startDate.getFullYear() === currentDate.getFullYear()) {
+            return { challenges: data.challenges, expired: false }
         }
   
-        return null
+        return { challenges: null, expired: true }
     }
     catch (error) {
-        return null
+        return { challenges: null, expired: false }
     }
 }
 
@@ -111,10 +120,17 @@ async function setAssignedChallenges(user, challenges) {
     }
 }
 
-async function updateAssignedChallenges(user, challenges) {
+async function updateAssignedChallenges(user, challenges, addStartDate=false) {
+    let updateObj = {
+        challenges: challenges,
+        start_date: new Date().toISOString(),
+    }
+    if (!addStartDate) {
+        delete updateObj.start_date
+    }
     const { data, error } = await supabase  // eslint-disable-line
     .from('challenges')
-    .update({ challenges: challenges })
+    .update(updateObj)
     .eq('user_id', user.id)
   
     if (error) {
@@ -134,6 +150,8 @@ export async function updateChallengeProgress(user, xpEarned, workBreakPair) {
 
     let updatedChallenges = { ...assignedChallenges }
     for (const [challengeText, attributes] of Object.entries(assignedChallenges)) {
+        console.log("challengeText", challengeText)
+        console.log("attributes", attributes)
         if (challengeText.includes('Complete a total of')) {
             const targetMinutes = parseInt(challengeText.split(' ')[4])
             if (attributes.progress !== attributes.metric) {
@@ -150,7 +168,7 @@ export async function updateChallengeProgress(user, xpEarned, workBreakPair) {
                 // user didn't complete a full session
                 continue
             }
-            if (attributes.progress !== targetWork) {
+            if (attributes.progress !== 1) {
                 updated = true
                 updatedChallenges[challengeText].progress = workBreakPair.work === targetWork ? 1 : 0
                 xpGained += workBreakPair.work === targetWork ? attributes.xp : 0
@@ -213,12 +231,12 @@ export async function updateChallengeProgress(user, xpEarned, workBreakPair) {
 }
 
 export async function getCurrentChallenges(user) {
-    let assignedChallenges = await getAssignedChallenges(user)
+    let { challenges, expired } = await getAssignedChallenges(user)
   
-    if (!assignedChallenges) {
-      assignedChallenges = getRandomChallenges()
-      await setAssignedChallenges(user, assignedChallenges)
+    if (!challenges) {
+      challenges = getRandomChallenges()
+      expired ? await updateAssignedChallenges(user, challenges, true) : await setAssignedChallenges(user, challenges)
     }
   
-    return assignedChallenges
+    return challenges
 }
