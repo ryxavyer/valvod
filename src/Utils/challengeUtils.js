@@ -140,7 +140,7 @@ async function updateAssignedChallenges(user, challenges, addStartDate=false) {
 
 export async function updateChallengeProgress(user, xpEarned, workBreakPair) {
     // Get the assigned challenges
-    const assignedChallenges = await getAssignedChallenges(user)
+    const { assignedChallenges, expired } = await getAssignedChallenges(user)  // eslint-disable-line
     let xpGained = 0
     let updated = false
   
@@ -150,8 +150,6 @@ export async function updateChallengeProgress(user, xpEarned, workBreakPair) {
 
     let updatedChallenges = { ...assignedChallenges }
     for (const [challengeText, attributes] of Object.entries(assignedChallenges)) {
-        console.log("challengeText", challengeText)
-        console.log("attributes", attributes)
         if (challengeText.includes('Complete a total of')) {
             const targetMinutes = parseInt(challengeText.split(' ')[4])
             if (attributes.progress !== attributes.metric) {

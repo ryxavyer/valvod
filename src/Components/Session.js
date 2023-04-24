@@ -37,6 +37,8 @@ const Session = ({ session, setInSessionView, activeListName, updateChallenges }
     const [totalWorkingSeconds, setTotalWorkingSeconds] = useState(0)
     const isWorkingRef = useRef(isWorking)
     const isBreakRef = useRef(isBreak)
+    const initialWorkingSecondsRef = useRef(initialWorkingSeconds)
+    const initialBreakSecondsRef = useRef(initialBreakSeconds)
     const incrementTotalWorkingSeconds = useCallback(() => {
         setTotalWorkingSeconds((prevTotalWorkingSeconds) => prevTotalWorkingSeconds + 1)
     }, [])
@@ -54,7 +56,7 @@ const Session = ({ session, setInSessionView, activeListName, updateChallenges }
         if (!workerRef.current) {
             initializeWorker()
         }
-    }, [isWorking, isBreak]) // eslint-disable-line
+    }, [isWorking, isBreak, initialWorkingSeconds, initialBreakSeconds]) // eslint-disable-line
 
 
     const initializeWorker = () => {
@@ -232,10 +234,10 @@ const Session = ({ session, setInSessionView, activeListName, updateChallenges }
     const handleWorkBreakShift = () => {
         const { user } = session
         sessionEndAlarm.play()
-        changeStatus(user, STATUS.WORKING, activeListName, isWorkingRef.current ? null : getSessionEndTimestamp(initialWorkingSeconds))
-        updateTime(secondsToTime(isWorking ? initialBreakSeconds : initialWorkingSeconds))
+        changeStatus(user, STATUS.WORKING, activeListName, isWorkingRef.current ? null : getSessionEndTimestamp(initialWorkingSecondsRef.current))
+        updateTime(secondsToTime(isWorking ? initialBreakSecondsRef.current : initialWorkingSecondsRef.current))
         if (workerRef.current) {
-            workerRef.current.postMessage({ type: 'start', workingSeconds: isWorkingRef.current ? initialBreakSeconds+1 : initialWorkingSeconds+1})
+            workerRef.current.postMessage({ type: 'start', workingSeconds: isWorkingRef.current ? initialBreakSecondsRef.current+1 : initialWorkingSecondsRef.current+1})
         }
     }
 
