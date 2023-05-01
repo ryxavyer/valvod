@@ -181,6 +181,7 @@ export async function updateChallengeProgress(user, xpEarned, workBreakPair) {
                     continue
                 }
                 updated = true
+                const sessionsCompleted = Math.floor(xpEarned / workBreakPair.work)
                 if (challengeText.includes('in one day')) {
                     if (attributes.dates === null) {
                         updatedChallenges[challengeText].dates = new Set()
@@ -193,7 +194,10 @@ export async function updateChallengeProgress(user, xpEarned, workBreakPair) {
                             updatedChallenges[challengeText].progress -= 1
                         }
                     }
-                    updatedChallenges[challengeText].dates.add(now.toISOString())
+                    for (let i = 0; i < sessionsCompleted; i++) {
+                        let date = new Date()
+                        updatedChallenges[challengeText].dates.add(date)
+                    }
                     const newProgress = updatedChallenges[challengeText].dates.size
                     updatedChallenges[challengeText].progress = newProgress >= targetNumber ? targetNumber : newProgress
                     xpGained += newProgress >= targetNumber ? attributes.xp : 0
@@ -210,7 +214,7 @@ export async function updateChallengeProgress(user, xpEarned, workBreakPair) {
                     continue
                 }
                 else {
-                    const newProgress = attributes.progress + 1
+                    const newProgress = attributes.progress + sessionsCompleted
                     updatedChallenges[challengeText].progress = newProgress >= targetNumber ? targetNumber : newProgress
                     xpGained += newProgress >= targetNumber ? attributes.xp : 0
                 }
