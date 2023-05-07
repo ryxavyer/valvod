@@ -54,7 +54,7 @@ export function getRandomChallenges() {
     for (let i = 0; i < TOTAL_WEEKLY_CHALLENGES; i++) {
       const randomIndex = Math.floor(Math.random() * challengeKeys.length)
       const randomChallenge = challengeKeys[randomIndex]
-      pickedChallenges[randomChallenge] = {xp: WEEKLY_CHALLENGES_XP[randomChallenge], metric: WEEKLY_CHALLENGES_KEY_METRIC[randomChallenge], progress: 0, dates: null, intervals: null}
+      pickedChallenges[randomChallenge] = {xp: WEEKLY_CHALLENGES_XP[randomChallenge], metric: WEEKLY_CHALLENGES_KEY_METRIC[randomChallenge], progress: 0, dates: [], intervals: []}
       challengeKeys.splice(randomIndex, 1)
     }
   
@@ -183,32 +183,21 @@ export async function updateChallengeProgress(user, xpEarned, workBreakPair) {
                 updated = true
                 const sessionsCompleted = Math.floor(xpEarned / workBreakPair.work)
                 if (challengeText.includes('in one day')) {
-                    if (attributes.dates === null) {
-                        updatedChallenges[challengeText].dates = new Set()
-                    }
                     const now = new Date()
                     const yesterday = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-                    for (const date of attributes.dates) {
-                        if (new Date(date) < yesterday) {
-                            updatedChallenges[challengeText].dates.delete(date)
-                            updatedChallenges[challengeText].progress -= 1
-                        }
-                    }
+                    updatedChallenges[challengeText].dates = updatedChallenges[challengeText].dates.filter((date) => new Date(date) >= yesterday)
                     for (let i = 0; i < sessionsCompleted; i++) {
-                        let date = new Date()
-                        updatedChallenges[challengeText].dates.add(date)
+                        let date = new Date().toISOString()
+                        updatedChallenges[challengeText].dates.push(date)
                     }
-                    const newProgress = updatedChallenges[challengeText].dates.size
+                    const newProgress = updatedChallenges[challengeText].dates.length
                     updatedChallenges[challengeText].progress = newProgress >= targetNumber ? targetNumber : newProgress
                     xpGained += newProgress >= targetNumber ? attributes.xp : 0
                     continue
                 }
                 else if (challengeText.includes('with unique work-break intervals')) {
-                    if (attributes.intervals === null) {
-                        updatedChallenges[challengeText].intervals = new Set()
-                    }
-                    updatedChallenges[challengeText].intervals.add(workBreakPair)
-                    const newProgress = updatedChallenges[challengeText].intervals.size
+                    updatedChallenges[challengeText].intervals.push(workBreakPair.work)
+                    const newProgress = updatedChallenges[challengeText].intervals.length
                     updatedChallenges[challengeText].progress = newProgress >= targetNumber ? targetNumber : newProgress
                     xpGained += newProgress >= targetNumber ? attributes.xp : 0
                     continue
