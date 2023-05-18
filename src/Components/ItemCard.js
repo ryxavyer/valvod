@@ -71,7 +71,7 @@ const ItemCard = ({ theme, session, lists, items, listId, updateItems }) => {
 
     const dueDateCompareFn = (item1, item2) => { 
         if (!item1.due_date && !item2.due_date) {
-            return 0
+            return new Date(item1.created_at) < new Date(item2.created_at) ? -1 : 1
         }
         if (!item1.due_date) {
             return 1
@@ -86,7 +86,7 @@ const ItemCard = ({ theme, session, lists, items, listId, updateItems }) => {
             return 1
         }
 
-        return 0
+        return new Date(item1.created_at) < new Date(item2.created_at) ? -1 : 1
     }
 
     return (

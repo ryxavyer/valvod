@@ -14,6 +14,13 @@ const WeeklyChallenges = ({ challenges }) => {
         setAnchorEl(e.currentTarget)
     }
 
+    const daysUntilReset = () => {
+        const now = new Date()
+        const nextMonday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (1 + 7 - now.getDay()) % 7)
+        const daysUntilNextMonday = Math.floor((nextMonday.getTime() - now.getTime()) / (1000 * 3600 * 24))
+        return `${daysUntilNextMonday}`
+    }
+
     return (
     <div>
         <Badge badgeContent={challenges.length} color="unread" sx={{ '& .MuiBadge-badge': { top: 10, right: 10 } }}>
@@ -59,6 +66,14 @@ const WeeklyChallenges = ({ challenges }) => {
                 {index !== Object.keys(challenges).length - 1 ? <Divider /> : ''}
                 </div>
             ))}
+                <Divider />
+                <Card key={`challenge_reset_card`} sx={{ minWidth: '450px' }}>
+                    <CardContent key={`challenge_reset_content`} style={{paddingTop: "10px", paddingBottom: "10px"}}>
+                        <Typography sx={{ fontSize: '12px', textAlign: "center", color:"#fffff", opacity:"75%" }} key={`challenge_reset_title`}>
+                            Resets in {daysUntilReset()} days
+                        </Typography>
+                    </CardContent>
+                </Card>
             </Menu>
         </div>
         );

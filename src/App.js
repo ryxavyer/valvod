@@ -11,7 +11,7 @@ import { getThemeObject } from './Utils/themeUtils'
 
 export default function App() {
   const [session, setSession] = useState(null)
-  const [mode, setMode] = useState('coffee')
+  const [mode, setMode] = useState('midnight')
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
