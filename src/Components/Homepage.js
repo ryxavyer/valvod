@@ -21,11 +21,9 @@ const Homepage = ({ session, theme, setTheme }) => {
   const [level, setLevel] = useState(null)
   const [xp, setXP] = useState(0)
   const [challenges, setChallenges] = useState({})
-  const [selectedIndex, setSelectedIndex] = useState(0)
-  const [selectedListId, setSelectedListId] = useState(null)
-  const [lists, setLists] = useState([])
+  const [selectedList, setSelectedList] = useState(null)
+  const [lists, setLists] = useState([]);
   const [items, setItems] = useState([])
-  // const [listWarnings, setListWarnings] = useState({})
   const [inSessionView, setInSessionView] = useState(false)
 
   useEffect(() => {
@@ -54,10 +52,9 @@ const Homepage = ({ session, theme, setTheme }) => {
     changeStatus(user, status)
   }
 
-  const handleListClick = async (index, id) => {
-    if (index === selectedIndex || id === selectedListId) return
-    setSelectedIndex(index)
-    setSelectedListId(id)
+  const handleListClick = async (index, id, list) => {
+    if (selectedList !== null && (index === selectedList.index || id === selectedList.id)) return
+    setSelectedList(list)
     await fetchItems(id)
   }
 
@@ -109,18 +106,59 @@ const Homepage = ({ session, theme, setTheme }) => {
       if (!data.length) {
         setLists([])
         setItems([])
-        setSelectedIndex(0)
-        setSelectedListId(null)
+        setSelectedList(null)
         return
       }
-
+      // check for missing list indices (old users or other misc errors)
+      const missingIndices = data.filter((list) => list.index === null)
+      const hasDuplicateIndices = new Set(data.map((list) => list.index)).size < data.length
+      if (missingIndices.length) {
+        let listUpdates = []
+        if (missingIndices.length === data.length || hasDuplicateIndices) {
+          // set indicies in order of data ids
+          data.forEach((list, index) => { list.index = index })
+          listUpdates = data
+        }
+        else {
+          // set missing indices to follow existing indices
+          const existingIndices = data.filter((list) => list.index !== null)
+          let nextIndex = 0
+          if (existingIndices.length) {
+            nextIndex = existingIndices.sort((a, b) => a.index - b.index)[existingIndices.length-1].index + 1
+          }
+          missingIndices.forEach((list, index) => { list.index = nextIndex + index })
+          // scale the indices down if there are any gaps (e.g. 0 2 3 or 1 2 3)
+          const newData = existingIndices.concat(missingIndices)
+          const needsScaleDown = newData[0].index !== 0 || newData[0].index + newData.length - 1 !== newData[newData.length-1].index
+          if (needsScaleDown) {
+            newData.forEach((list, index) => { list.index = index })
+          }
+          data = newData
+          listUpdates = needsScaleDown ? newData : missingIndices
+        }
+        // save changes
+        for (const list of listUpdates) {
+          const { data: updatedData, error: updatedError } = await supabase  // eslint-disable-line
+            .from('lists')
+            .update({ index: list.index })
+            .eq('id', list.id)
+            .eq('user_id', user.id)
+          if (updatedError) throw updatedError
+        }
+      }
+      data.sort((a, b) => a.index - b.index)
       setLists(data)
-      // getListWarnings(data)
-      if (selectedListId === null || data[selectedIndex] === undefined) {
-        setSelectedIndex(0)
-        setSelectedListId(data[0].id)
+      if (selectedList === null) {
+        setSelectedList(data[0])
         fetchItems(data[0].id)
       } else {
+        const selectedIndex = data.findIndex((list) => list.id === selectedList.id)
+        if (selectedIndex === -1) {
+          // outdated selectedList
+          setSelectedList(data[0])
+          fetchItems(data[0].id)
+          return
+        }
         fetchItems(data[selectedIndex].id)
       }
     } catch (error) {
@@ -143,31 +181,6 @@ const Homepage = ({ session, theme, setTheme }) => {
     }
     return xpGained
   }
-
-  // const getListWarnings = async (listData) => {
-  //   const listIds = listData.map((l) => l.id)
-  //   try{
-  //     let { data, error } = await supabase
-  //       .from('items')
-  //       .select('list_id, due_date')
-  //       .in('list_id', listIds)
-
-  //     if (error) throw error
-      
-  //     const warnings = {}
-  //     const twoDaysFromNow = new Date(new Date().getTime()+(2*24*60*60*1000))
-  //     data.forEach((i, index) => {
-  //       if (i.due_date && new Date(i.due_date) <= twoDaysFromNow) {
-  //         warnings[i.list_id] = true
-  //       }
-  //     })
-  //     setListWarnings(warnings)
-  //   }
-  //   catch (error) {
-  //     handleError(error.error_description || error.message)
-  //     return
-  //   }
-  // }
 
   const fetchItems = async (listId) => {
     const { user } = session
@@ -207,18 +220,18 @@ const Homepage = ({ session, theme, setTheme }) => {
                 <Navigation theme={theme} setTheme={setTheme} session={session} username={username} status={status} level={level} xp={xp} challenges={challenges} handleStatusUpdate={handleStatusUpdate} handleError={handleError}/>
                 <Box component="main" sx={{ padding: 3, overflow: 'auto', marginTop:"80px" }}>
                   {error && <Alert variant='outlined' severity='error' sx={{ width:"30%", marginY:2, marginX:"auto" }}>{error}</Alert>}
-                  <Session session={session} setInSessionView={setInSessionView} activeListName={lists[selectedIndex].name} updateChallenges={updateChallenges}/>
-                  <ItemCard theme={theme} session={session} lists={lists} items={items} listId={selectedListId} updateItems={fetchItems} handleError={handleError}/>
+                  <Session session={session} setInSessionView={setInSessionView} activeListName={selectedList.name} updateChallenges={updateChallenges}/>
+                  <ItemCard theme={theme} session={session} lists={lists} items={items} listId={selectedList.id} updateItems={fetchItems} handleError={handleError}/>
                 </Box>
               </div>
-             :
+            :
               <div>
                 <Navigation theme={theme} setTheme={setTheme} session={session} username={username} status={status} level={level} xp={xp} challenges={challenges} handleStatusUpdate={handleStatusUpdate} handleError={handleError}/>
-                <Box component="main" sx={{ padding: 3, overflow: 'auto', marginTop:"80px" }}>
+                {error && <Alert variant='outlined' severity='error' sx={{ width:"50%", marginTop:"120px", marginX:"auto" }}>{error}</Alert>}
+                <Box component="main" sx={{ padding: 3, overflow: 'auto', marginTop: error ? "0px" : "80px" }}>
                   <Box sx={{ display:"flex", flexDirection:"row", flexWrap:'wrap', }}>
-                    {error && <Alert variant='outlined' severity='error' sx={{ width:"30%", marginY:2, marginX:"auto" }}>{error}</Alert>}
-                    <ListCard theme={theme} session={session} lists={lists} updateLists={fetchLists} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex} handleListClick={handleListClick} handleSessionClick={handleSessionClick} handleError={handleError}/>
-                    <ItemCard theme={theme} session={session} lists={lists} items={items} listId={selectedListId} updateItems={fetchItems} handleError={handleError}/>
+                    <ListCard theme={theme} session={session} lists={lists} setLists={setLists} updateLists={fetchLists} selectedList={selectedList} handleListClick={handleListClick} handleSessionClick={handleSessionClick} handleError={handleError}/>
+                    <ItemCard theme={theme} session={session} lists={lists} items={items} listId={selectedList.id} updateItems={fetchItems} handleError={handleError}/>
                     <Friends theme={theme} session={session} handleError={handleError}/>
                   </Box>
                 </Box>

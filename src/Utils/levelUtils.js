@@ -48,10 +48,11 @@ export function getLevelProgressClass(level, xp) {
 }
 
 export function getLevelColorClass(level) {
-    if (level < 25) return "bg-white bg-opacity-20"
-    if (level < 50) return "bg-[#6f584b] bg-opacity-80"
-    if (level < 75) return "bg-[#B68F61] bg-opacity-60"
-    if (level < 100) return "bg-emerald-600 bg-opacity-40"
+    if (level < 10) return "bg-[#6e6e6e]"
+    if (level < 25) return "bg-[#6f584b]"
+    if (level < 50) return "bg-[#ba9818]"
+    if (level < 75) return "bg-[#05855e]"
+    if (level < 100) return "bg-[#b52452]"
 
-    return "bg-purple-800 bg-opacity-60"
+    return "bg-[#6B21A8]"
 }
