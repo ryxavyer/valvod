@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { supabase } from "../supabaseClient"
 import { getThemeObject } from "../Utils/themeUtils"
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from "@mui/material"
@@ -15,10 +15,6 @@ const ListCard = ({ theme, session, lists, setLists, updateLists, selectedList, 
     const themeObject = getThemeObject(theme)
     const themePrimary = themeObject.palette.primary[500]
     const themeSecondary = themeObject.palette.secondary.main
-
-    useEffect(() => {
-        handleError("test")
-    }, [])
 
     const onDragEnd = (result) => {
         const { destination, source } = result;
