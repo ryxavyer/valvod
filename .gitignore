@@ -1,6 +1,6 @@
 # dependencies
-/node_modules
-/.pnp
+node_modules
+.pnp
 .pnp.js
 
 # testing
@@ -8,6 +8,13 @@
 
 # production
 /build
+/dist
+
+# vscode settings
+.vscode
+
+# next build
+.next
 
 # misc
 .env

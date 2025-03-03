@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+@layer base {
+    :root, .midnight {
+        --background: 0 0% 10%;
+        --foreground: 0 0% 100%;
+    
+        --muted: 0 0% 5%;
+        --muted-foreground: 0 0% 63%;
+    
+        --accent: 0 69% 39%;
+        --accent-foreground: 210 40% 98%;
+    
+        --popover: 0 0% 14%;
+        --popover-foreground: 0 0% 63%;
+    
+        --border: 0 69% 39%;
+        --input: 0 69% 39%;
+    
+        --card: 0 0% 14%;
+        --card-foreground: 0 0% 100%;
+    
+        --primary: 0 69% 39%;
+        --primary-foreground: 0 0% 100%;
+    
+        --secondary: 0 0% 20%;
+        --secondary-foreground: 0 0% 100%;
+
+        --success: 127 69% 43%;
+        --success-foreground: 0 0% 100%;
+    
+        --destructive: 0 60% 50%;
+        --destructive-foreground: 0 0% 100%;
+    
+        --ring: 0 69% 39%;
+    
+        --radius: 0.5rem;
+    }
+
+    .sunrise {
+        --background: 15 4% 12%;
+        --foreground: 0 0% 100%;
+    
+        --muted: 15 4% 6%;
+        --muted-foreground: 0 0% 63%;
+    
+        --accent: 35 27% 55%;
+        --accent-foreground: 0 0% 100%;
+    
+        --popover: 15 4% 16%;
+        --popover-foreground: 0 0% 63%;
+    
+        --border: 35 27% 55%;
+        --input: 35 27% 55%;
+    
+        --card: 15 4% 16%;
+        --card-foreground: 0 0% 100%;
+    
+        --primary: 35 27% 55%;
+        --primary-foreground: 0 0% 100%;
+    
+        --secondary: 25 14% 37%;
+        --secondary-foreground: 0 0% 100%;
+
+        --success: 127 69% 43%;
+        --success-foreground: 0 0% 100%;
+    
+        --destructive: 0 60% 50%;
+        --destructive-foreground: 0 0% 100%;
+    
+        --ring: 35 27% 55%;
+    
+        --radius: 0.5rem;
+    }
+
+    .secondary-text {
+        color: hsl(var(--muted-foreground));
+    }
+
+    .accent-text {
+        color: hsl(var(--accent));
+    }
+
+    .accent-fill {
+        fill: hsl(var(--accent));
+    }
+
+    .secondary-fill {
+        fill: hsl(var(--muted-foreground));
+    }
+
+    .github-button {
+        --background: 0 0% 13%;
+        --primary: 0 0% %;
+        --foreground: 0 0% 100%;
+    }
+
+    .google-button {
+        --background: 217 89.1% 60.6%;
+        --primary: 217 89.1% 60.6%;
+        --foreground: 0 0% 10%;
+    }
+
+    /* Custom Scrollbar CSS */
+    /* For Webkit browsers (Chrome, Safari, etc.) */
+    ::-webkit-scrollbar {
+        width: 5px; /* Set the width of the scrollbar */
+        height: 5px; /* Set the height of the scrollbar (for horizontal scrollbars) */
+        background-color: hsl(var(--background)); /* Set the background color of the scrollbar */
+    }
+
+    ::-webkit-scrollbar-track {
+        background-color: hsl(var(--background)); /* Set the background color of the scrollbar track */
+        border-radius: 3px; /* Add rounded corners to the scrollbar track */
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: hsl(var(--accent)); /* Set the background color of the scrollbar thumb */
+        border-radius: 3px; /* Add rounded corners to the scrollbar thumb */
+    }
+
+    /* For Firefox */
+    * {
+        scrollbar-width: thin; /* Set the width of the scrollbar */
+        scrollbar-color: hsl(var(--accent)) hsl(var(--background)); /* Set the color of the scrollbar thumb and track */
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+        font-family: Inter, sans-serif, system-ui;
+        font-feature-settings: "rlig" 1, "calt" 1, "liga" 1;
+    }
+    @supports (font-variation-settings: normal) {
+        :root { font-family: InterVariable, sans-serif; }
+    }
+}
