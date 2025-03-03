@@ -233,7 +233,7 @@ export default function VOD({ user }: VODProps) {
                         ? <AnnotationUISkeleton/>
                         :
                             <div className='w-full'>
-                                {videoDuration > 0 && (
+                                {user && videoDuration > 0 && (
                                     <AnnotationTimeline
                                         tags={tags}
                                         activeTagId={activeTagId}
