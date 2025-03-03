@@ -1,7 +1,6 @@
 {
     "crons": [
         {
-            "name": "fetch-youtube",
             "path": "/api/youtube/cron",
             "schedule": "0 4 * * *"
         }
