@@ -1,4 +1,5 @@
 import React from 'react';
+import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from "@src/components/ui/toaster";
 import './global.css';
 
@@ -16,6 +17,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         {children}
         <Toaster />
+        <Analytics />
       </body>
     </html>
   );
