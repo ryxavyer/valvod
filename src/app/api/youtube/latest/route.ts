@@ -5,8 +5,8 @@ import { VOD, VODWithTags } from '../types';
 import { createClient } from '@src/lib/supabase';
 import { getTags } from '@src/lib/valorant';
 
-export const VOD_LATEST_CACHE_KEY = 'youtube:latest';
-export const VOD_LATEST_CACHE_EXP = 12 * 60 * 60; // 12 hours
+const VOD_LATEST_CACHE_KEY = 'youtube:latest';
+const VOD_LATEST_CACHE_EXP = 12 * 60 * 60; // 12 hours
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
