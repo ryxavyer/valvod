@@ -58,7 +58,7 @@ export default function Auth({ page, embed=false }: AuthProps) {
             </div>
           }
           <div className='flex flex-col justify-center items-center basis-[100%] lg:basis-[66%]'>
-            <div className='flex flex-col items-center justify-center w-[450px]'>
+            <div className='flex flex-col items-center justify-center w-[350px] md:w-[450px]'>
               {!embed && <p className='text-2xl py-8'>{`${page == Page.LOGIN ? 'Login' : 'Signup'}`}</p>}
               <div className='flex flex-row w-full justify-between'>
                 <form className='flex basis-[31%]'>
@@ -113,7 +113,7 @@ export default function Auth({ page, embed=false }: AuthProps) {
                 </div>
                 {/* padding div to center form part */}
                 <div className='pb-[20%]'></div>
-                <p className='absolute flex justify-center bottom-10 w-[450px] text-xs secondary-text'>
+                <p className='absolute flex justify-center bottom-10 w-[350px] md:w-[450px] text-[10px] md:text-sm secondary-text'>
                   {`By using VALVOD, you agree to our `}
                   <Link href={"/terms"} className='accent-text hover:underline mx-1'>Terms of Service</Link>
                   {` and `}

@@ -53,7 +53,7 @@ const VODList = () => {
     return (
         <div 
             className='mt-[110px] grid w-full p-2 gap-4 overflow-y-auto px-6 md:px-10'
-            style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))' }}>
+            style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
             {videos.map((video, index) => (
                 <Link 
                     key={video.id || index}

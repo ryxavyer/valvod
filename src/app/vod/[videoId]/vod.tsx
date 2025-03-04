@@ -185,7 +185,7 @@ export default function VOD({ user }: VODProps) {
         <div className='w-full h-full pt-[100px]'>
             <TooltipProvider>
                 <div className={`flex flex-col w-full h-full px-6 md:px-10 xl:flex-row ${user ? 'justify-between' : 'justify-center'}`}>
-                    <div className='flex flex-col lg:basis-[70%] items-center w-full xl:w-[calc(100vw-20%)] min-w-[725px]'>
+                    <div className='flex flex-col lg:basis-[70%] items-center w-full xl:w-[calc(100vw-20%)] max-w-[1175px]'>
                         {loading 
                         ? <TitleSkeleton/>
                         :
@@ -233,7 +233,7 @@ export default function VOD({ user }: VODProps) {
                         ? <AnnotationUISkeleton/>
                         :
                             <div className='w-full'>
-                                {user && videoDuration > 0 && (
+                                {videoDuration > 0 && (
                                     <AnnotationTimeline
                                         tags={tags}
                                         activeTagId={activeTagId}

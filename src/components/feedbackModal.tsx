@@ -105,11 +105,11 @@ const FeedbackModal = ({ className }: FeedbackModalProps) => {
                     toggleOpen()
                 }}
             >
-                <MessageSquare className="w-4 h-4 shrink-0 opacity-100 mr-2"/>
-                <span className="text-md font-normal">Feedback</span>
+                <MessageSquare className="w-4 h-4 shrink-0 opacity-100 sm:mr-2"/>
+                <span className="hidden text-md font-normal sm:block">Feedback</span>
             </Button>
             {isOpen &&
-                <div className="z-50 absolute top-[80px] right-2 md:top-[80px] md:right-[35px] bg-neutral-900 border border-secondary rounded-lg flex items-center justify-center p-4 w-[470px] md:w-[500px] h-[250px]">
+                <div className="z-50 absolute top-[80px] right-2 md:top-[80px] md:right-[35px] bg-neutral-900 border border-secondary rounded-lg flex items-center justify-center p-4 w-[375px] md:w-[500px] h-[250px]">
                 {window === FEEDBACK_MODAL_WINDOWS.MENU && (
                     <div className="flex flex-col justify-between items-center w-[90%] h-[90%]">
                         <div className="w-full h-1/2">

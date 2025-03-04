@@ -11,7 +11,7 @@ export interface AnnotationTimelineProps {
 
 export const AnnotationTimelineSkeleton = () => {
     return (
-        <div className="w-full h-44 bg-muted animate-pulse rounded-sm" />
+        <div className="w-full h-32 bg-muted animate-pulse rounded-sm" />
     );
 };
 
@@ -37,7 +37,7 @@ export function AnnotationTimeline({ tags, activeTagId, videoDuration, onMarkerC
     return (
         <div
             ref={timelineRef}
-            className="relative h-36 w-full bg-neutral-900 rounded-sm"
+            className="relative h-32 w-full bg-neutral-900 rounded-sm"
         >
                 {ticks.map((tick, index) => {
                     const leftPercent = (tick / videoDuration) * 100;

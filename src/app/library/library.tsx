@@ -115,29 +115,27 @@ export default function Library({ user }: LibraryProps) {
                             <h2 className='text-lg font-bold'>Recommendation Preferences</h2>
                             <p className='text-sm text-neutral-300'>Tell us more about how you play so we can show you the most useful VODs.</p>
                         </div>
-                        <div className='flex flex-row items-center space-x-4'>
-                            <form className='w-[650px] flex flex-row space-x-2'>
-                                <div className='flex flex-col w-[250px]'>
-                                    <label className='text-neutral-500'>I currently main</label>
-                                    <SelectCombobox options={AGENTS} optionName='agent' selectValue={recommenderAgent} setSelectValue={handleAgentSelect} className='w-full'/>
-                                </div>
-                                <div className='flex flex-col w-[250px]'>
-                                    <label className='text-neutral-500'>I want to learn</label>
-                                    <SelectCombobox options={ROLES} optionName='role' selectValue={recommenderRole} setSelectValue={handleRoleSelect} className='w-full'/>
-                                </div>
-                                <div className='flex flex-row items-center space-x-2 mt-6'>
-                                    <Button
-                                        variant='default'
-                                        className='w-[100px]'
-                                        disabled={recommenderSaving}
-                                        onClick={saveSettingsMemo}
-                                    >
-                                        Save
-                                    </Button>
-                                    <LoaderCircle className={`w-6 h-6 animate-spin ${recommenderSaving ? 'block' : 'hidden'}`}/>
-                                </div>
-                            </form>
-                        </div>
+                        <form className='w-[350px] flex flex-col space-y-2 md:w-[650px] md:flex-row md:space-x-4 md:space-y-0'>
+                            <div className='flex flex-col w-[250px]'>
+                                <label className='text-neutral-500'>I currently main</label>
+                                <SelectCombobox options={AGENTS} optionName='agent' selectValue={recommenderAgent} setSelectValue={handleAgentSelect} className='w-full'/>
+                            </div>
+                            <div className='flex flex-col w-[250px]'>
+                                <label className='text-neutral-500'>I want to learn</label>
+                                <SelectCombobox options={ROLES} optionName='role' selectValue={recommenderRole} setSelectValue={handleRoleSelect} className='w-full'/>
+                            </div>
+                            <div className='flex flex-row items-end space-x-2 md:mt-6'>
+                                <Button
+                                    variant='default'
+                                    className='w-[100px]'
+                                    disabled={recommenderSaving}
+                                    onClick={saveSettingsMemo}
+                                >
+                                    Save
+                                </Button>
+                                <LoaderCircle className={`w-6 h-6 animate-spin ${recommenderSaving ? 'block' : 'hidden'}`}/>
+                            </div>
+                        </form>
                     </div>
                     <div className="flex flex-col w-full items-start">
                         <div className='flex flex-row space-x-2'>
@@ -148,7 +146,7 @@ export default function Library({ user }: LibraryProps) {
                                 <h2 className={`text-lg font-bold ${activeTab === TABS.TAGGED ? 'text-white' : 'text-neutral-500'}`}>Tagged</h2>
                             </div>
                         </div>
-                        <div className='grid w-full p-4 gap-4 justify-start overflow-y-auto bg-neutral-900 rounded-xl rounded-tl-none' style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))' }}>
+                        <div className='grid w-full p-4 gap-4 justify-start overflow-y-auto bg-neutral-900 rounded-xl rounded-tl-none' style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
                             {activeTab === TABS.FAVORITES
                             ?
                                 <>

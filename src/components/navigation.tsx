@@ -50,7 +50,7 @@ const Navigation = ({ user }: NavigationProps) => {
                                     variant="secondary"
                                     className="px-4 py-2 rounded-lg border-secondary border bg-background sm:hidden"
                                 >
-                                    <SearchIcon className="h-5 w-5 shrink-0 opacity-100" />
+                                    <SearchIcon className="h-4 w-4 shrink-0 opacity-100" />
                                 </Button>
                                 <Link
                                     href="/auth/login"
@@ -73,14 +73,14 @@ const Navigation = ({ user }: NavigationProps) => {
                                     variant="secondary"
                                     className="px-4 py-2 rounded-lg border-secondary border bg-background sm:hidden"
                                 >
-                                    <SearchIcon className="h-5 w-5 shrink-0 opacity-100" />
+                                    <SearchIcon className="h-4 w-4 shrink-0 opacity-100" />
                                 </Button>
                                 <Link
                                     href="/library"
                                     className={`flex flex-row items-center justify-center w-full h-10 max-w-[120px] px-4 py-2 bg-background border border-secondary rounded-lg text-sm hover:bg-secondary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`}
                                 >
-                                    <Library className='w-4 h-4 shrink-0 opacity-100 mr-2'/>
-                                    <span className="text-md font-normal">Library</span>
+                                    <Library className='w-4 h-4 shrink-0 opacity-100 sm:mr-2'/>
+                                    <span className="hidden text-md font-normal sm:block">Library</span>
                                 </Link>
                                 {user && <FeedbackModal className='rounded-lg'/>}
                             </div>
