@@ -39,6 +39,7 @@ const CHANNELS = {
   // channel id: number of videos to fetch (&publishedAfter likely limits this)
   "UCOR8JcMRg_cFKx0etV5zXBQ": 200, // Valorant DAILY
   "UCjZTend97TmoVDf31M-Tacg": 200, // Valorant Pro Vods
+  "UCMdeP_OZiBy0FvGKvxX7JSA": 200, // Radiant Pro VODs (weird intros)
   "UCXZEHi1TfIp75O402VZG9xg": 200, // VALORANT VODS (looks like all pro games)
 }
 
@@ -133,7 +134,7 @@ export async function GET(request: NextRequest) {
         }
         // update lastrun
         await redis.set(LASTRUN_KEY, new Date().toISOString(), { EX: LASTRUN_EXP });
-        return NextResponse.json({ status: 200 });
+        return NextResponse.json({ new_vods: vods.length }, { status: 200 });
     } catch (error) {
         return NextResponse.json({ error: error }, { status: 500 });
     }

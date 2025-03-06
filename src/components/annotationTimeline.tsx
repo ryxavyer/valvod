@@ -1,9 +1,16 @@
 import { Tag, tagTypeToJSX } from '@src/lib/tag';
 import { formatTime } from '@src/utils/time';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@src/components/ui/popover";
 import React, { useRef } from 'react';
+import TagEditor from './tagEditor';
 
 export interface AnnotationTimelineProps {
     tags: Tag[];
+    setTags: (tags: Tag[]) => void;
     activeTagId: number | null;
     videoDuration: number;
     onMarkerClick: (tag: Tag) => void;
@@ -15,7 +22,7 @@ export const AnnotationTimelineSkeleton = () => {
     );
 };
 
-export function AnnotationTimeline({ tags, activeTagId, videoDuration, onMarkerClick }: AnnotationTimelineProps) {
+export function AnnotationTimeline({ tags, setTags, activeTagId, videoDuration, onMarkerClick }: AnnotationTimelineProps) {
     const timelineRef = useRef<HTMLDivElement>(null);
     const tickInterval = 60;
     const ticks: number[] = [];
@@ -51,8 +58,8 @@ export function AnnotationTimeline({ tags, activeTagId, videoDuration, onMarkerC
                         </div>
                     );
                 })}
-                {Array.from(tickTagMap.entries()).map(([tick, tags], index) => {
-                    if (tags.length === 0) {
+                {Array.from(tickTagMap.entries()).map(([tick, ticktags], index) => {
+                    if (ticktags.length === 0) {
                         return null;
                     }
                     // place tags in the middle of the ticks (4 is hardcoded to match width of tags)
@@ -66,17 +73,24 @@ export function AnnotationTimeline({ tags, activeTagId, videoDuration, onMarkerC
                                 top: '12.5%',
                             }}
                         >
-                            {tags.map(tag => {
+                            {ticktags.map(ticktag => {
                                 return (
-                                    <div
-                                        key={tag.id}
-                                        className={`rounded-sm cursor-pointer bg-transparent hover:scale-[120%]`}
-                                        title={`${formatTime(tag.time)} - ${tag.type}`}
-                                        aria-label={`${formatTime(tag.time)} - ${tag.type}`}
-                                        onClick={() => onMarkerClick(tag)}
-                                    >
-                                        {tagTypeToJSX(tag.type, `h-4 w-4 shrink-0 opacity-100 ${activeTagId === tag.id ? 'stroke-accent' : ''}`)}
-                                    </div>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <div
+                                                key={ticktag.id}
+                                                className={`rounded-sm cursor-pointer bg-transparent hover:scale-[120%]`}
+                                                title={`${formatTime(ticktag.time)} - ${ticktag.type}`}
+                                                aria-label={`${formatTime(ticktag.time)} - ${ticktag.type}`}
+                                                onClick={() => onMarkerClick(ticktag)}
+                                            >
+                                                {tagTypeToJSX(ticktag.type, `h-4 w-4 shrink-0 opacity-100 ${activeTagId === ticktag.id ? 'stroke-accent' : ''}`)}
+                                            </div>
+                                        </PopoverTrigger>
+                                        <PopoverContent side='bottom'>
+                                            <TagEditor tags={tags} setTags={setTags} activeTagId={activeTagId}/>
+                                        </PopoverContent>
+                                    </Popover>
                                 );
                             })}
                         </div>

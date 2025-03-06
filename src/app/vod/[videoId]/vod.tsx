@@ -2,7 +2,6 @@
 import AnnotationControls, { AnnotationControlsSkeleton } from '@src/components/annotationControls';
 import AnnotationTimeline, { AnnotationTimelineSkeleton } from '@src/components/annotationTimeline';
 import SignupModal from '@src/components/signupModal';
-import TagEditor from '@src/components/tagEditor';
 import { Toggle } from '@src/components/ui/toggle';
 import {
     TooltipProvider,
@@ -184,7 +183,7 @@ export default function VOD({ user }: VODProps) {
     return (
         <div className='w-full h-full pt-[100px]'>
             <TooltipProvider>
-                <div className={`flex flex-col w-full h-full px-6 md:px-10 xl:flex-row ${user ? 'justify-between' : 'justify-center'}`}>
+                <div className={`flex flex-col w-full h-full justify-center px-6 md:px-10 xl:flex-row`}>
                     <div className='flex flex-col lg:basis-[70%] items-center w-full xl:w-[calc(100vw-20%)] max-w-[1175px]'>
                         {loading 
                         ? <TitleSkeleton/>
@@ -236,6 +235,7 @@ export default function VOD({ user }: VODProps) {
                                 {videoDuration > 0 && (
                                     <AnnotationTimeline
                                         tags={tags}
+                                        setTags={setTags}
                                         activeTagId={activeTagId}
                                         videoDuration={videoDuration}
                                         onMarkerClick={handleMarkerClick}
@@ -244,11 +244,6 @@ export default function VOD({ user }: VODProps) {
                             </div>
                         }
                     </div>
-                    {user &&
-                        <div className='flex flex-col items-center w-full h-full max-h-[700px] py-7 xl:py-14 lg:basis-[25%] lg:max-h-1/2'>
-                            <TagEditor tags={tags} setTags={setTags} activeTagId={activeTagId} setActiveTagId={setActiveTagId}/>
-                        </div>
-                    }
                 </div>
             </TooltipProvider>
         </div>

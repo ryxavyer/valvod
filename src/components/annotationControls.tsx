@@ -43,7 +43,7 @@ const AnnotationControls = ({ className, addTag }: AnnotationControlsProps) => {
     };
 
     return (
-        <div className={`bg-neutral-900 w-[75px] min-w-[75px] py-4 flex flex-col space-y-8 rounded-lg rounded-bl-none rounded-tl-none rounded-br-none ${className}`}>
+        <div className={`hidden bg-neutral-900 w-[75px] min-w-[75px] py-4 sm:flex flex-col space-y-8 rounded-lg rounded-bl-none rounded-tl-none rounded-br-none ${className}`}>
             <TooltipProvider>
                 <div className='flex flex-col items-center space-y-8'>
                     <Tooltip>
@@ -94,7 +94,7 @@ const AnnotationControls = ({ className, addTag }: AnnotationControlsProps) => {
                         <TooltipTrigger className='hover:cursor-default'>
                             <Info className="h-6 w-6 shrink-0 opacity-100"/>
                         </TooltipTrigger>
-                        <TooltipContent sideOffset={10}>Tag key moments as you watch so you can jump to them later. You can also filter VODs by the tags you add in your library.</TooltipContent>
+                        <TooltipContent sideOffset={10}>Tag key moments as you watch so you can jump to them later.</TooltipContent>
                     </Tooltip>
                 </div>
                 <div
