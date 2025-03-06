@@ -115,9 +115,9 @@ export default function Auth({ page, embed=false }: AuthProps) {
                 <div className='pb-[20%]'></div>
                 <p className='absolute flex justify-center bottom-10 w-[350px] md:w-[450px] text-[10px] md:text-xs secondary-text'>
                   {`By using VALVOD, you agree to our `}
-                  <Link href={"/terms"} className='accent-text hover:underline mx-1'>Terms of Service</Link>
+                  <Link href={"/terms"} className='accent-text font-semibold hover:underline mx-1'>Terms of Service</Link>
                   {` and `}
-                  <Link href={"/privacy-policy"} className='accent-text hover:underline ml-1'>Privacy Policy</Link>
+                  <Link href={"/privacy-policy"} className='accent-text font-semibold hover:underline ml-1'>Privacy Policy</Link>
                   {`.`}
                 </p>
               </div>
