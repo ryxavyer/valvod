@@ -128,13 +128,14 @@ export async function GET(request: NextRequest) {
         }
         let vods = (await Promise.all(videoPromises)).flat().sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
         // save to db
+        console.info(`Saving ${vods.length} videos with ignoreDuplicates`);
         const { error } = await supabase.from("vods").upsert(vods, { onConflict: "id", ignoreDuplicates: true });
         if (error) {
             throw error;
         }
         // update lastrun
         await redis.set(LASTRUN_KEY, new Date().toISOString(), { EX: LASTRUN_EXP });
-        return NextResponse.json({ new_vods: vods.length }, { status: 200 });
+        return NextResponse.json({ status: 200 });
     } catch (error) {
         return NextResponse.json({ error: error }, { status: 500 });
     }
