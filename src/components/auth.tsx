@@ -113,7 +113,7 @@ export default function Auth({ page, embed=false }: AuthProps) {
                 </div>
                 {/* padding div to center form part */}
                 <div className='pb-[20%]'></div>
-                <p className='absolute flex justify-center bottom-10 w-[350px] md:w-[450px] text-[10px] md:text-sm secondary-text'>
+                <p className='absolute flex justify-center bottom-10 w-[350px] md:w-[450px] text-[10px] md:text-xs secondary-text'>
                   {`By using VALVOD, you agree to our `}
                   <Link href={"/terms"} className='accent-text hover:underline mx-1'>Terms of Service</Link>
                   {` and `}
