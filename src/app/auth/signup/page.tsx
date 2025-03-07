@@ -1,5 +1,4 @@
-'use client'
-import Auth, { Page } from '@src/components/auth';
+import Auth from '@src/components/auth';
 
 export const metadata = {
   title: "Sign Up | VALVOD",
@@ -8,6 +7,6 @@ export const metadata = {
 
 export default function Signup() {
   return (
-    <Auth page={Page.SIGNUP}/>
+    <Auth page={"Signup"}/>
   )
 }

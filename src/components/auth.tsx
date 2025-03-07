@@ -17,7 +17,7 @@ export enum Page {
 }
 
 interface AuthProps {
-    page: Page;
+    page: Page | string;
     embed?: boolean;
 }
 
