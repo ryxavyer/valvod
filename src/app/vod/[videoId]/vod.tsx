@@ -1,6 +1,7 @@
 'use client';
 import AnnotationControls, { AnnotationControlsSkeleton } from '@src/components/annotationControls';
 import AnnotationTimeline, { AnnotationTimelineSkeleton } from '@src/components/annotationTimeline';
+import RelatedVODs from '@src/components/relatedVods';
 import SignupModal from '@src/components/signupModal';
 import { Toggle } from '@src/components/ui/toggle';
 import {
@@ -181,10 +182,10 @@ export default function VOD({ user }: VODProps) {
     );
 
     return (
-        <div className='w-full h-full pt-[100px]'>
+        <div className='w-full h-full pt-[100px] xl:h-screen'>
             <TooltipProvider>
-                <div className={`flex flex-col w-full h-full justify-center px-6 md:px-10 xl:flex-row`}>
-                    <div className='flex flex-col lg:basis-[70%] items-center w-full xl:w-[calc(100vw-20%)] max-w-[1175px]'>
+                <div className={`flex flex-col w-full h-full justify-center space-x-0 space-y-4 items-start px-6 md:px-10 xl:flex-row xl:${user ? 'space-x-[100px]' : 'space-x-[25px]'} xl:space-y-0`}>
+                    <div className='flex flex-col justify-center items-center w-full xl:w-[calc(100vw-20%)] max-w-[1175px] xl:aspect-video'>
                         {loading 
                         ? <TitleSkeleton/>
                         :
@@ -243,6 +244,9 @@ export default function VOD({ user }: VODProps) {
                                 )}
                             </div>
                         }
+                    </div>
+                    <div className='w-full h-full xl:w-auto'>
+                        <RelatedVODs title={videoTitle}/>
                     </div>
                 </div>
             </TooltipProvider>

@@ -43,7 +43,7 @@ const AnnotationControls = ({ className, addTag }: AnnotationControlsProps) => {
     };
 
     return (
-        <div className={`hidden bg-neutral-900 w-[75px] min-w-[75px] py-4 sm:flex flex-col space-y-8 rounded-lg rounded-bl-none rounded-tl-none rounded-br-none ${className}`}>
+        <div className={`hidden bg-neutral-900 w-[75px] min-w-[75px] py-4 sm:flex flex-col space-y-8 rounded-lg rounded-bl-none rounded-tl-none ${className}`}>
             <TooltipProvider>
                 <div className='flex flex-col items-center space-y-8'>
                     <Tooltip>
