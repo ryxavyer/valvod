@@ -1,6 +1,11 @@
 import ValVodSVG from '@public/valvod.svg';
 import ResetPasswordForm from './form';
 
+export const metadata = {
+  title: "Change Password | VALVOD",
+  description: "Update the password set for your account.",
+}
+
 export default function ChangePassword() {
   return (
     <div className='flex flex-col w-full h-screen'>

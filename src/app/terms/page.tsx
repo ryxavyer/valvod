@@ -1,6 +1,11 @@
 import Navigation from '@src/components/navigation';
 import { createClient } from '@src/lib/supabase';
 
+export const metadata = {
+    title: "Terms of Service | VALVOD",
+    description: "Review our Terms of Service.",
+}
+
 export default async function TermsOfService() {
     const supabase = await createClient()
     const { data, error } = await supabase.auth.getUser()

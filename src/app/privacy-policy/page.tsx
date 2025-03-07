@@ -1,6 +1,11 @@
 import Navigation from '@src/components/navigation';
 import { createClient } from '@src/lib/supabase';
 
+export const metadata = {
+    title: "Privacy Policy | VALVOD",
+    description: "Review our Privacy Policy.",
+}
+
 export default async function PrivacyPolicy() {
     const supabase = await createClient()
     const { data, error } = await supabase.auth.getUser()

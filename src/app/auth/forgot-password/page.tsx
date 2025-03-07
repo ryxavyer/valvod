@@ -1,6 +1,11 @@
 import ValVodSVG from '@public/valvod.svg';
 import ForgotPasswordForm from './form';
 
+export const metadata = {
+  title: "Forgot Password | VALVOD",
+  description: "Reset the password set for your account.",
+}
+
 export default function ForgotPassword() {
   return (
     <div className='flex flex-col w-full h-screen'>
