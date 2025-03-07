@@ -184,7 +184,7 @@ export default function VOD({ user }: VODProps) {
     return (
         <div className='w-full h-full pt-[100px] xl:h-screen'>
             <TooltipProvider>
-                <div className={`flex flex-col w-full h-full justify-center space-x-0 space-y-4 items-start px-6 md:px-10 xl:flex-row xl:${user ? 'space-x-[100px]' : 'space-x-[25px]'} xl:space-y-0`}>
+                <div className={`flex flex-col w-full h-full justify-center space-x-0 space-y-4 items-start px-6 md:px-10 xl:flex-row ${user ? 'xl:space-x-[100px]' : 'xl:space-x-[25px]'} xl:space-y-0`}>
                     <div className='flex flex-col justify-center items-center w-full xl:w-[calc(100vw-20%)] max-w-[1175px] xl:aspect-video'>
                         {loading 
                         ? <TitleSkeleton/>
