@@ -23,6 +23,8 @@ const RelatedVODs = ({ title }: RelatedVODsProps) => {
             if (!res.ok) {
                 throw new Error(data.error || 'Failed to fetch VODs');
             }
+            // filter out the current VOD
+            data.vods = data.vods.filter((vod: VODWithTags) => vod.metadata.title !== title);
             setVideos(prev => [...prev, ...data.vods]);
         } catch (error) {
             toast({

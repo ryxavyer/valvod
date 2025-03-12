@@ -144,6 +144,7 @@ const TEAMS = [
     {name: "Bilibili Gaming", slug: "blg", values: ["bilibili gaming", "bilibiligaming", "blg"]},
     {name: "Evil Geniuses", slug: "eg", values: ["evil geniuses", "evilgeniuses", "eg"]},
     {name: "NRG", slug: "nrg", values: ["nrg"]},
+    {name: "Team Heretics", slug: "th", values: ["team heretics", "teamheretics", "th"]},
 ]
 const TEAMS_WITH_REGEX = TEAMS.map(team => ({
     name: team.name,
@@ -265,9 +266,13 @@ export const getTags = (title: string): Tags[] => {
     for (const team of TEAMS_WITH_REGEX) {
         if (team.regex.test(title)) {
             // gotchas with team names
+            const titleLower = title.toLowerCase();
             if (
-                (team.slug === "loud" && (title.toLowerCase().includes("cloud9") || title.toLowerCase().includes("cloud 9"))) ||
-                (team.slug === "eg" && title.toLowerCase().includes("eggster"))
+                (team.slug === "loud" && (titleLower.includes("cloud9") || titleLower.includes("cloud 9"))) ||
+                (team.slug === "eg" && titleLower.includes("eggster") ||
+                (team.slug === "gen" && titleLower.includes("agent")) ||
+                (team.slug === "th" && (titleLower.includes("the") || titleLower.includes("dasnerth")))
+            ) 
             ) {
                 continue;
             }
