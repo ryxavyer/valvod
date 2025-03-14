@@ -271,7 +271,8 @@ export const getTags = (title: string): Tags[] => {
                 (team.slug === "loud" && (titleLower.includes("cloud9") || titleLower.includes("cloud 9"))) ||
                 (team.slug === "eg" && titleLower.includes("eggster") ||
                 (team.slug === "gen" && titleLower.includes("agent")) ||
-                (team.slug === "th" && (titleLower.includes("the") || titleLower.includes("dasnerth")))
+                (team.slug === "th" && (titleLower.includes("the") || titleLower.includes("dasnerth"))) ||
+                ((team.slug === "eg" || team.slug === "gen" ) && titleLower.includes("legend"))
             ) 
             ) {
                 continue;
@@ -317,40 +318,101 @@ export const getTags = (title: string): Tags[] => {
     return tags;
 }
 
-const shouldReturnInSearch = (vodTags: Tags[], searchTags: Tags[]): boolean => {
-    // tags of the same type are OR'd together and those requirements are AND'd together
-    const requiredTagsByType = new Map<string, Set<string>>();
-    for (const tag of searchTags) {
-        if (!requiredTagsByType.has(tag.type)) {
-            requiredTagsByType.set(tag.type, new Set());
-        }
-        // name should be lowercase already but just in case
-        requiredTagsByType.get(tag.type).add(tag.name.toLowerCase());
-    }
-    const isOnlyMapSearch = searchTags.length === 1 && searchTags[0].type === TagType.MAP;
-    // for each type in the search criteria, check that vodTags contains at least one matching tag
-    // map type is an exception since inconsistently added to titles
-    for (const [type, requiredNames] of requiredTagsByType.entries()) {
-        const vodTagsForType = vodTags.filter(tag => tag.type === type);
-        const matchFound = vodTagsForType.some(tag => requiredNames.has(tag.name.toLowerCase()));
-        if (!matchFound && (type !== TagType.MAP || isOnlyMapSearch)) {
-            return false;
-        }
-    }
-    return true;
-}
-
 export const getSearchResults = (vods: VODWithTags[], searchString: string): VODWithTags[] => {
+    const shouldReturnInSearch = (vodTags: Tags[], searchTags: Tags[]): boolean => {
+        // tags of the same type are OR'd together and those requirements are AND'd together
+        const requiredTagsByType = new Map<string, Set<string>>();
+        for (const tag of searchTags) {
+            if (!requiredTagsByType.has(tag.type)) {
+                requiredTagsByType.set(tag.type, new Set());
+            }
+            // name should be lowercase already but just in case
+            requiredTagsByType.get(tag.type).add(tag.name.toLowerCase());
+        }
+        const isOnlyMapSearch = searchTags.length === 1 && searchTags[0].type === TagType.MAP;
+        // for each type in the search criteria, check that vodTags contains at least one matching tag
+        // map type is an exception since inconsistently added to titles
+        for (const [type, requiredNames] of requiredTagsByType.entries()) {
+            const vodTagsForType = vodTags.filter(tag => tag.type === type);
+            const matchFound = vodTagsForType.some(tag => requiredNames.has(tag.name.toLowerCase()));
+            if (!matchFound && (type !== TagType.MAP || isOnlyMapSearch)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     const searchTags = getTags(searchString);
     let res = vods.filter(vod => shouldReturnInSearch(vod.tags, searchTags));
     // sort into: vods with map tag match, vods without - then by published_at in each group
     res.sort((a, b) => {
-        const aHasMap = a.tags.some(tag => tag.type === TagType.MAP && searchTags.some(searchTag => searchTag.name === tag.name));
-        const bHasMap = b.tags.some(tag => tag.type === TagType.MAP && searchTags.some(searchTag => searchTag.name === tag.name));
-        if (aHasMap && !bHasMap) {
+        const aHasSearchMap = a.tags.some(tag => tag.type === TagType.MAP && searchTags.some(searchTag => searchTag.name === tag.name));
+        const bHasSearchMap = b.tags.some(tag => tag.type === TagType.MAP && searchTags.some(searchTag => searchTag.name === tag.name));
+        if (aHasSearchMap && !bHasSearchMap) {
             return -1;
         }
-        if (!aHasMap && bHasMap) {
+        if (!aHasSearchMap && bHasSearchMap) {
+            return 1;
+        }
+        const aHasAnyMap = a.tags.some(tag => tag.type === TagType.MAP);
+        const bHasAnyMap = b.tags.some(tag => tag.type === TagType.MAP);
+        if (aHasAnyMap && !bHasAnyMap) {
+            return -1;
+        }
+        if (!aHasAnyMap && bHasAnyMap) {
+            return 1;
+        }
+        return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
+    });
+    return res
+}
+
+export const getRelatedResults = (vods: VODWithTags[], title: string): VODWithTags[] => {
+    const shouldReturnInRelated = (vodTags: Tags[], searchTags: Tags[]): boolean => {
+        // tags of the same type are OR'd together and those requirements are AND'd together
+        const requiredTagsByType = new Map<string, Set<string>>();
+        for (const tag of searchTags) {
+            // we only care about agent and map for related
+            if (tag.type !== TagType.AGENT && tag.type !== TagType.MAP) {
+                continue;
+            }
+            if (!requiredTagsByType.has(tag.type)) {
+                requiredTagsByType.set(tag.type, new Set());
+            }
+            // name should be lowercase already but just in case
+            requiredTagsByType.get(tag.type).add(tag.name.toLowerCase());
+        }
+        const isOnlyMapSearch = searchTags.length === 1 && searchTags[0].type === TagType.MAP;
+        // for each type in the search criteria, check that vodTags contains at least one matching tag
+        // map type is an exception since inconsistently added to titles
+        for (const [type, requiredNames] of requiredTagsByType.entries()) {
+            const vodTagsForType = vodTags.filter(tag => tag.type === type);
+            const matchFound = vodTagsForType.some(tag => requiredNames.has(tag.name.toLowerCase()));
+            if (!matchFound && (type !== TagType.MAP || isOnlyMapSearch)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    const searchTags = getTags(title);
+    let res = vods.filter(vod => shouldReturnInRelated(vod.tags, searchTags));
+    // sort into: vods with map tag match, vods without - then by published_at in each group
+    res.sort((a, b) => {
+        const aHasTitleMap = a.tags.some(tag => tag.type === TagType.MAP && searchTags.some(searchTag => searchTag.name === tag.name));
+        const bHasTitleMap = b.tags.some(tag => tag.type === TagType.MAP && searchTags.some(searchTag => searchTag.name === tag.name));
+        if (aHasTitleMap && !bHasTitleMap) {
+            return -1;
+        }
+        if (!aHasTitleMap && bHasTitleMap) {
+            return 1;
+        }
+        const aHasAnyMap = a.tags.some(tag => tag.type === TagType.MAP);
+        const bHasAnyMap = b.tags.some(tag => tag.type === TagType.MAP);
+        if (aHasAnyMap && !bHasAnyMap) {
+            return -1;
+        }
+        if (!aHasAnyMap && bHasAnyMap) {
             return 1;
         }
         return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
