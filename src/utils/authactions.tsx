@@ -52,7 +52,6 @@ export async function oauth(formData: FormData) {
   if (error) {
     throw error
   }
-  console.log(data)
   if (data.url) {
     redirect(data.url)
   }

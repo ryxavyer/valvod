@@ -1,6 +1,6 @@
 import React from 'react';
 import Navigation from '@src/components/navigation';
-import VOD from './vod';
+import VODPlayer from './vodplayer';
 import { createClient } from '@src/lib/supabase';
 
 export const metadata = {
@@ -15,7 +15,7 @@ export default async function Watch() {
     return (
         <div>
             <Navigation user={data.user}/>
-            <VOD user={data.user}/>
+            <VODPlayer user={data.user}/>
         </div>
     );
 }

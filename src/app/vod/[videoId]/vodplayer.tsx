@@ -25,7 +25,7 @@ interface VODProps {
     user: User | null;
 }
 
-export default function VOD({ user }: VODProps) {
+export default function VODPlayer({ user }: VODProps) {
     const { videoId } = useParams();
     const { toast } = useToast();
     const router = useRouter();
