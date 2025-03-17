@@ -26,6 +26,7 @@ export default function Library({ user }: LibraryProps) {
     const [annotated, setAnnotated] = useState<VODWithTags[]>([]);
     const [activeTab, setActiveTab] = useState(TABS.FAVORITES);
     const [recommenderSaving, setRecommenderSaving] = useState(false);
+    const [recommenderChanged, setRecommenderChanged] = useState(false);
     const [recommenderAgent, setRecommenderAgent] = useState(null);
     const [recommenderRole, setRecommenderRole] = useState(null);
 
@@ -67,6 +68,8 @@ export default function Library({ user }: LibraryProps) {
                 description: "Please try again later.",
                 variant: "destructive"
             })
+        } else {
+            setRecommenderChanged(false);
         }
         setRecommenderSaving(false);
     }, [recommenderAgent, recommenderRole]);
@@ -81,10 +84,12 @@ export default function Library({ user }: LibraryProps) {
                 setRecommenderRole(null);
             }
         }
+        setRecommenderChanged(true);
     }
 
     const handleRoleSelect = (role: string) => {
         setRecommenderRole(role);
+        setRecommenderChanged(true);
     }
 
     useEffect(() => {
@@ -127,7 +132,7 @@ export default function Library({ user }: LibraryProps) {
                                 <Button
                                     variant='default'
                                     className='w-[100px]'
-                                    disabled={recommenderSaving}
+                                    disabled={recommenderSaving || !recommenderChanged}
                                     onClick={saveSettingsMemo}
                                 >
                                     Save
