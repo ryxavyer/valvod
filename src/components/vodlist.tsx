@@ -1,26 +1,29 @@
 'use client';
 import { type VODWithTags } from '@src/app/api/youtube/types';
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { dateToTimeAgo } from '@src/lib/utils';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useToast } from "@src/hooks/use-toast";
-import { TagType, roleTagToJSX } from '@src/lib/valorant';
 import VOD from './vod';
 
 const VODList = () => {
     const { toast } = useToast();
     const [loading, setLoading] = useState(true);
     const [videos, setVideos] = useState<VODWithTags[]>([]);
+    const [page, setPage] = useState(1);
+    const [isLastPage, setIsLastPage] = useState(false);
+    const sentinelRef = useRef<HTMLDivElement>(null);
 
-    const fetchVods = async () => {
+    const fetchVods = useCallback(async () => {
+        if (isLastPage) return;
         setLoading(true);
         try {
-            const res = await fetch("/api/youtube/latest");
+            const res = await fetch(`/api/youtube/latest/?page=${page}`);
             const data = await res.json();
             if (!res.ok) {
                 throw new Error(data.error || 'Failed to fetch VODs');
             }
             setVideos(prev => [...prev, ...data.vods]);
+            setPage(data.nextPageNum);
+            setIsLastPage(data.isLastPage);
             setLoading(false);
         } catch (error) {
             toast({
@@ -29,11 +32,25 @@ const VODList = () => {
                 variant: "destructive",
             })
         }
-    };
+    }, [isLastPage, page, toast]);
 
     useEffect(() => {
         fetchVods();
     }, []);
+
+    useEffect(() => {
+        if (!sentinelRef.current) return;
+        const obs = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting && !isLastPage && !loading) {
+                    fetchVods();
+                }
+            },
+            { root: null, rootMargin: '200px', threshold: 0 }
+        );
+        obs.observe(sentinelRef.current);
+        return () => { obs.disconnect(); };
+    }, [fetchVods, isLastPage, loading]);
 
     const VideoSkeleton = () => (
         <div className='flex flex-col items-center animate-pulse'>
@@ -59,6 +76,8 @@ const VODList = () => {
                 <VOD key={video.id} video={video}/>
             ))}
             {loading && Array.from({ length: 20 }).map((_, i) => <VideoSkeleton key={`skeleton-${i}`} />)}
+            {/* sentinel observer triggers next page load */}
+            <div ref={sentinelRef} />
         </div>
     );
 }
