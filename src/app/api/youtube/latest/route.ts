@@ -20,10 +20,8 @@ export async function GET(request: NextRequest) {
     if (cachedVods.length > 0) {
       return NextResponse.json({ vods: cachedVods, nextPageNum: page + 1, isLastPage: cachedVods.length < VOD_RETURN_LIMIT });
     }
-    // return "recent" vods - videos published in the 3 months
-    const { data, error, count } = await supabase.from('vods')
-      .select('*', { count: 'exact' })
-      .gte('published_at', new Date(new Date().setMonth(new Date().getMonth() - 3)).toISOString())
+    const { data, error } = await supabase.from('vods')
+      .select('*')
       .order('published_at', { ascending: false })
       .range(offset, offset + VOD_RETURN_LIMIT - 1);
     if (error) {

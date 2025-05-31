@@ -5,7 +5,7 @@ import { createClient } from '@src/lib/supabase';
 
 export const metadata = {
     title: "Watch VOD | VALVOD",
-    description: "Watch a VALORANT VOD and take notes for later.",
+    description: "Watch a VALORANT VOD and take notes for later."
 }
 
 export default async function Watch() {

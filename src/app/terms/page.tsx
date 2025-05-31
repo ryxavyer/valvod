@@ -3,7 +3,7 @@ import { createClient } from '@src/lib/supabase';
 
 export const metadata = {
     title: "Terms of Service | VALVOD",
-    description: "Review our Terms of Service.",
+    description: "Review our Terms of Service."
 }
 
 export default async function TermsOfService() {

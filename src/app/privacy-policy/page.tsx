@@ -3,7 +3,7 @@ import { createClient } from '@src/lib/supabase';
 
 export const metadata = {
     title: "Privacy Policy | VALVOD",
-    description: "Review our Privacy Policy.",
+    description: "Review our Privacy Policy."
 }
 
 export default async function PrivacyPolicy() {

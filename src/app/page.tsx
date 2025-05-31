@@ -6,7 +6,7 @@ import AgentCarousel from '@src/components/agentCarousel';
 
 export const metadata = {
     title: "VALVOD | #1 Site for VALORANT VOD Review",
-    description: "The latest VALORANT VODs from the top players in the world.",
+    description: "The latest VALORANT VODs from the top players in the world."
 }
 
 const Index = async () => {

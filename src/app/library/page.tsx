@@ -5,7 +5,7 @@ import { createClient } from '@src/lib/supabase';
 
 export const metadata = {
     title: "My Library | VALVOD",
-    description: "Quick access to VODs you've favorited or studied before.",
+    description: "Quick access to VODs you've favorited or studied before."
 }
 
 const Index = async () => {

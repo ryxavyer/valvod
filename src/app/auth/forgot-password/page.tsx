@@ -3,7 +3,7 @@ import ForgotPasswordForm from './form';
 
 export const metadata = {
   title: "Forgot Password | VALVOD",
-  description: "Reset the password set for your account.",
+  description: "Reset the password set for your account."
 }
 
 export default function ForgotPassword() {
