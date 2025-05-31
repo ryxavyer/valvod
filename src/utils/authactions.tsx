@@ -5,10 +5,15 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@src/lib/supabase'
 import { Provider, SignInWithOAuthCredentials } from '@supabase/supabase-js'
 
+const getURL = () => {
+  let url =
+    process.env.VERCEL_URL ??
+    'http://localhost:3000'
+  return url
+}
+
 export async function login(formData: FormData): Promise<{success: boolean, message: string}> {
   const supabase = await createClient()
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
   const data = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
@@ -23,8 +28,6 @@ export async function login(formData: FormData): Promise<{success: boolean, mess
 
 export async function signup(formData: FormData): Promise<{success: boolean, message: string}> {
   const supabase = await createClient()
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
   const data = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
@@ -33,16 +36,11 @@ export async function signup(formData: FormData): Promise<{success: boolean, mes
   if (error) {
     return {success: false, message: error.message}
   }
-  return {success: true, message: 'Success! Check your email to verify your account.'}
+  revalidatePath('/', 'layout')
+  redirect('/')
 }
 
 export async function oauth(formData: FormData) {
-  const getURL = () => {
-    let url =
-      process.env.VERCEL_URL ??
-      'http://localhost:3000'
-    return url
-  }
   const authdata: SignInWithOAuthCredentials = {
     provider: formData.get('provider') as Provider,
     options: { redirectTo: `${getURL()}/auth/callback` }
@@ -58,12 +56,6 @@ export async function oauth(formData: FormData) {
 }
 
 export async function sendResetPasswordEmail(formData: FormData): Promise<boolean> {
-  const getURL = () => {
-    let url =
-      process.env.VERCEL_URL ??
-      'http://localhost:3000'
-    return url
-  }
   const supabase = await createClient()
   const email = formData.get('email') as string
   const { error } = await supabase.auth.resetPasswordForEmail(email, {

@@ -40,7 +40,6 @@ const CHANNELS = {
   "UCOR8JcMRg_cFKx0etV5zXBQ": 200, // Valorant DAILY
   "UCjZTend97TmoVDf31M-Tacg": 200, // Valorant Pro Vods
   "UCMdeP_OZiBy0FvGKvxX7JSA": 200, // Radiant Pro VODs (weird intros)
-  "UCXZEHi1TfIp75O402VZG9xg": 200, // VALORANT VODS (looks like all pro games)
 }
 
 function getHighestQualityThumbnail(thumbnails: SearchResponse["items"][0]["snippet"]["thumbnails"]): string {
