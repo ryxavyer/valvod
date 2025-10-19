@@ -1,5 +1,6 @@
 import ValVodSVG from '@public/valvod.svg';
 import ForgotPasswordForm from './form';
+import { Suspense } from 'react';
 
 export const metadata = {
   title: "Forgot Password | VALVOD",
@@ -25,7 +26,9 @@ export default function ForgotPassword() {
             <div className='flex flex-col items-center justify-center w-[450px]'>
             <p className='text-2xl py-8'>{"Forgot your password?"}</p>
               <div className='flex flex-col w-full'>
-                <ForgotPasswordForm />
+                <Suspense fallback={<div className="w-full h-24" />}>
+                  <ForgotPasswordForm />
+                </Suspense>
                 {/* padding div to center form part */}
                 <div className='pb-[20%]'></div>
               </div>
