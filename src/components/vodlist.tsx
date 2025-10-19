@@ -4,13 +4,20 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useToast } from "@src/hooks/use-toast";
 import VOD from './vod';
 
-const VODList = () => {
+interface VODListProps {
+    initialVods?: VODWithTags[];
+    initialPage?: number;
+    initialIsLastPage?: boolean;
+}
+
+const VODList = ({ initialVods = [], initialPage = 2, initialIsLastPage = false }: VODListProps) => {
     const { toast } = useToast();
-    const [loading, setLoading] = useState(true);
-    const [videos, setVideos] = useState<VODWithTags[]>([]);
-    const [page, setPage] = useState(1);
-    const [isLastPage, setIsLastPage] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [videos, setVideos] = useState<VODWithTags[]>(initialVods);
+    const [page, setPage] = useState(initialPage);
+    const [isLastPage, setIsLastPage] = useState(initialIsLastPage);
     const sentinelRef = useRef<HTMLDivElement>(null);
+    const [hasInitialized, setHasInitialized] = useState(false);
 
     const fetchVods = useCallback(async () => {
         if (isLastPage) return;
@@ -35,8 +42,12 @@ const VODList = () => {
     }, [isLastPage, page, toast]);
 
     useEffect(() => {
-        fetchVods();
-    }, []);
+        // Only fetch if we don't have initial data
+        if (initialVods.length === 0 && !hasInitialized) {
+            fetchVods();
+            setHasInitialized(true);
+        }
+    }, [initialVods.length, hasInitialized]);
 
     useEffect(() => {
         if (!sentinelRef.current) return;
@@ -72,7 +83,7 @@ const VODList = () => {
         <div 
             className='grid w-full p-2 gap-4 overflow-y-auto px-6 md:px-10'
             style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
-            {videos.map((video, index) => (
+            {videos.map((video) => (
                 <VOD key={video.id} video={video}/>
             ))}
             {loading && Array.from({ length: 20 }).map((_, i) => <VideoSkeleton key={`skeleton-${i}`} />)}

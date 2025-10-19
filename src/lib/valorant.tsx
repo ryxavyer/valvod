@@ -31,6 +31,7 @@ export const AGENTS = [
     {name: "Skye", value: "skye", icon_small: "VALORANT/agents/6F2A04CA-43E0-BE17-7F36-B3908627744D_small.png", bg_hex: "#641c04", role_hex: "#b3dd8b", vod_importance: 0.6},
     {name: "Sova", value: "sova", icon_small: "VALORANT/agents/320B2A48-4D9B-A075-30F1-1F93A9B638FA_small.png", bg_hex: "#136370", role_hex: "#d9e6d2", vod_importance: 0.9},
     {name: "Tejo", value: "tejo", icon_small: "VALORANT/agents/B444168C-4E35-8076-DB47-EF9BF368F384_small.png", bg_hex: "#6e3c17", role_hex: "#f7d782", vod_importance: 0.6},
+    {name: "Veto", value: "veto", icon_small: "VALORANT/agents/92EEEF5D-43B5-1D4A-8D03-B3927A09034B_small.png", bg_hex: "#2e2825", role_hex: "#84ffe7", vod_importance: 0.5},
     {name: "Viper", value: "viper", icon_small: "VALORANT/agents/707EAB51-4836-F488-046A-CDA6BF494859_small.png", bg_hex: "#110b15", role_hex: "#509730", vod_importance: 0.7},
     {name: "Vyse", value: "vyse", icon_small: "VALORANT/agents/EFBA5359-4016-A1E5-7626-B1AE76895940_small.png", bg_hex: "#2d2465", role_hex: "#efc971", vod_importance: 0.8},
     {name: "Waylay", value: "waylay", icon_small: "VALORANT/agents/DF1CB487-4902-002E-5C17-D28E83E78588_small.png", bg_hex: "#6c341d", role_hex: "#f1c957", vod_importance: 0.5},
@@ -93,6 +94,7 @@ const SENTINELS = new Set([
     "killjoy",
     "sage",
     "deadlock",
+    "veto",
     "vyse",
 ]);
 export const agentToRole = (agent: string): string => {

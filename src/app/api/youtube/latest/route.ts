@@ -31,11 +31,15 @@ export async function GET(request: NextRequest) {
       throw new Error("No VODs found");
     }
     const vods: VOD[] = data.sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
-    let vodsWithTags: VODWithTags[] = [];
-    for (const vod of vods) {
-      vodsWithTags.push({ ...vod, tags: getTags(vod.metadata.title) });
-    }
-    await redis.set(redis_page_key, JSON.stringify(vodsWithTags), { EX: VOD_LATEST_CACHE_EXP });
+    // Process tags in parallel for better performance
+    const vodsWithTags: VODWithTags[] = vods.map(vod => ({
+      ...vod,
+      tags: getTags(vod.metadata.title)
+    }));
+    // Cache asynchronously without blocking the response
+    redis.set(redis_page_key, JSON.stringify(vodsWithTags), { EX: VOD_LATEST_CACHE_EXP }).catch(err =>
+      console.error('Redis cache error:', err)
+    );
     return NextResponse.json({ vods: vodsWithTags, nextPageNum: page + 1, isLastPage: data.length < VOD_RETURN_LIMIT });
   } catch (error) {
     return NextResponse.json({ error: error }, { status: 500 });

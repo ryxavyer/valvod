@@ -10,6 +10,8 @@ import { Input } from '@src/components/ui/input';
 import Link from 'next/link';
 import { PasswordInput } from './ui/passwordinput';
 import { useToast } from '@src/hooks/use-toast';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export enum Page {
   LOGIN = "Login",
@@ -23,23 +25,45 @@ interface AuthProps {
 
 export default function Auth({ page, embed=false }: AuthProps) {
   const { toast } = useToast();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
-  async function handleLogin(e: React.FormEvent<HTMLFormElement>, formData: FormData) {
+  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const { success, message } = await login(formData);
-    toast({
-      title: message,
-      variant: success ? "success" : "destructive",
-    })
+    setIsLoading(true);
+    const formData = new FormData(e.currentTarget);
+    const result = await login(formData);
+
+    if (result.success) {
+      router.push('/');
+      router.refresh();
+    } else {
+      setIsLoading(false);
+      toast({
+        title: "Login failed",
+        description: result.message || "Please check your credentials and try again.",
+        variant: "destructive",
+      });
+    }
   }
 
-  async function handleSignup(e: React.FormEvent<HTMLFormElement>, formData: FormData) {
+  async function handleSignup(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const { success, message } = await signup(formData);
-    toast({
-      title: message,
-      variant: success ? "success" : "destructive",
-    })
+    setIsLoading(true);
+    const formData = new FormData(e.currentTarget);
+    const result = await signup(formData);
+
+    if (result.success) {
+      router.push('/');
+      router.refresh();
+    } else {
+      setIsLoading(false);
+      toast({
+        title: "Signup failed",
+        description: result.message || "Please try again later.",
+        variant: "destructive",
+      });
+    }
   }
   return (
     <div className={`flex flex-col w-full ${embed ? 'h-auto' : 'h-screen'}`}>
@@ -82,7 +106,7 @@ export default function Auth({ page, embed=false }: AuthProps) {
               </div>
               <Separator orientation='horizontal' decorative className='w-full my-6'/>
               <div className='flex flex-col w-full'>
-                <form className='flex flex-col w-full' onSubmit={(e) => page == Page.LOGIN ? handleLogin(e, new FormData(e.currentTarget)) : handleSignup(e, new FormData(e.currentTarget))}>
+                <form className='flex flex-col w-full' onSubmit={page == Page.LOGIN ? handleLogin : handleSignup}>
                   <Input className='w-full mb-4' id="email" name="email" type="email" placeholder='Email' required />
                   {page == Page.SIGNUP
                   ?
@@ -90,7 +114,9 @@ export default function Auth({ page, embed=false }: AuthProps) {
                   :
                     <Input className='w-full mb-4' id="password" name="password" type="password" placeholder='Password' required />
                   }
-                  <Button size='lg' variant='default' type='submit'>{`${page == Page.LOGIN ? 'Log In' : 'Sign Up'}`}</Button>
+                  <Button size='lg' variant='default' type='submit' disabled={isLoading}>
+                    {page == Page.LOGIN ? 'Log In' : 'Sign Up'}
+                  </Button>
                 </form>
                 <div className='py-4'>
                     {page == Page.LOGIN 
