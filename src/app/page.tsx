@@ -3,7 +3,7 @@ import Navigation from '@src/components/navigation';
 import VODList from '../components/vodlist';
 import { createClient } from '@src/lib/supabase';
 import AgentCarousel from '@src/components/agentCarousel';
-import { getTags } from '@src/lib/valorant';
+import { withTags } from '@src/lib/valorant';
 import type { VODWithTags } from '@src/app/api/youtube/types';
 
 export const metadata = {
@@ -26,10 +26,7 @@ async function getInitialVods(): Promise<{ vods: VODWithTags[], nextPageNum: num
         }
 
         // Process tags in parallel for better performance
-        const vodsWithTags: VODWithTags[] = data.map(vod => ({
-            ...vod,
-            tags: getTags(vod.metadata.title)
-        }));
+        const vodsWithTags: VODWithTags[] = data.map(withTags);
 
         return {
             vods: vodsWithTags,

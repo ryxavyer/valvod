@@ -3,7 +3,7 @@ import redis from '@src/lib/redis';
 import { getRedisVods } from '../cache';
 import { VOD, VODWithTags } from '../types';
 import { createClient } from '@src/lib/supabase';
-import { getTags } from '@src/lib/valorant';
+import { withTags } from '@src/lib/valorant';
 
 const VOD_LATEST_CACHE_KEY = 'youtube:latest';
 const VOD_LATEST_CACHE_EXP = 12 * 60 * 60; // 12 hours
@@ -32,10 +32,7 @@ export async function GET(request: NextRequest) {
     }
     const vods: VOD[] = data.sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
     // Process tags in parallel for better performance
-    const vodsWithTags: VODWithTags[] = vods.map(vod => ({
-      ...vod,
-      tags: getTags(vod.metadata.title)
-    }));
+    const vodsWithTags: VODWithTags[] = vods.map(withTags);
     // Cache asynchronously without blocking the response
     redis.set(redis_page_key, JSON.stringify(vodsWithTags), { EX: VOD_LATEST_CACHE_EXP }).catch(err =>
       console.error('Redis cache error:', err)

@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getTags } from '@src/lib/valorant';
+import { getTags, withTags } from '@src/lib/valorant';
 import { VOD, VODWithTags } from '../youtube/types';
 import { createClient } from '@src/lib/supabase';
 
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     const vods: VOD[] = data.sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
     let vodsWithTags: VODWithTags[] = [];
     for (const vod of vods) {
-      vodsWithTags.push({ ...vod, tags: getTags(vod.metadata.title) });
+      vodsWithTags.push(withTags(vod));
     }
     return NextResponse.json({ vods: vodsWithTags });
   } catch (error) {

@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@src/lib/supabase';
-import { getTags } from '@src/lib/valorant';
+import { withTags } from '@src/lib/valorant';
 import { VODWithTags } from '../youtube/types';
 
 export interface VOD_USERFAVORITE {
@@ -63,12 +63,12 @@ export async function GET(request: NextRequest) {
         const favoritesData: VOD_USERFAVORITE[] = favorites.data;
         let favoritesWithTags: VODWithTags[] = [];
         for (const vod of favoritesData.sort((a, b) => new Date(b.userfavorite.created_at).getTime() - new Date(a.userfavorite.created_at).getTime())) {
-            favoritesWithTags.push({ ...vod, tags: getTags(vod.metadata.title) });
+            favoritesWithTags.push(withTags(vod));
         }
         const annotatedData: VOD_TAGS[] = annotated.data;
         let annotatedWithTags: VODWithTags[] = [];
         for (const vod of annotatedData.sort((a, b) => new Date(b.tags.created_at).getTime() - new Date(a.tags.created_at).getTime())) {
-            annotatedWithTags.push({ ...vod, tags: getTags(vod.metadata.title) });
+            annotatedWithTags.push(withTags(vod));
         }
         return NextResponse.json({ favorites: favoritesWithTags, annotated: annotatedWithTags });
     } catch (error) {

@@ -2,7 +2,8 @@ import Duelist from '@public/VALORANT/roles/duelist.svg';
 import Controller from '@public/VALORANT/roles/controller.svg';
 import Initiator from '@public/VALORANT/roles/initiator.svg';
 import Sentinel from '@public/VALORANT/roles/sentinel.svg';
-import { VODWithTags } from '@src/app/api/youtube/types';
+import { VOD, VODWithTags } from '@src/app/api/youtube/types';
+import { decodeHtmlEntities } from '@src/utils/html';
 
 // vod_importance field (0 -> 1) is for sorting carousel / links outside of recommender
 // just using my own ideas about how useful reviewing vods is for the agent for now
@@ -251,6 +252,17 @@ const getTag = (name: string): Tags | undefined => {
     //     }
     // }
     return undefined;
+}
+
+// Single entry point for turning a db row into something renderable. Rows written
+// before the cron decoded titles still hold HTML entities, so decode on read too.
+export const withTags = (vod: VOD): VODWithTags => {
+    const title = decodeHtmlEntities(vod.metadata.title);
+    return {
+        ...vod,
+        metadata: { ...vod.metadata, title },
+        tags: getTags(title),
+    };
 }
 
 export const getTags = (title: string): Tags[] => {

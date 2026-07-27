@@ -3,7 +3,7 @@ import Navigation from '@src/components/navigation';
 import { createClient } from '@src/lib/supabase';
 import { redirect } from 'next/navigation';
 import VODResults from '@src/components/vodresults';
-import { getSearchResults, getTags } from '@src/lib/valorant';
+import { getSearchResults, withTags } from '@src/lib/valorant';
 import type { VODWithTags } from '@src/app/api/youtube/types';
 
 interface SearchResultsProps {
@@ -31,10 +31,7 @@ async function getSearchData(searchString: string): Promise<VODWithTags[]> {
         }
 
         // Process tags for all VODs
-        const vodsWithTags: VODWithTags[] = data.map(vod => ({
-            ...vod,
-            tags: getTags(vod.metadata.title)
-        }));
+        const vodsWithTags: VODWithTags[] = data.map(withTags);
 
         // Apply search ranking algorithm
         return getSearchResults(vodsWithTags, searchString);

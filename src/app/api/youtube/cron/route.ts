@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { NextResponse, type NextRequest } from 'next/server';
 import redis from '@src/lib/redis';
 import { VOD } from '../types';
+import { decodeHtmlEntities } from '@src/utils/html';
 
 enum CoreAPIErrors {
   QUOTA_EXCEEDED = "quotaExceeded",
@@ -115,8 +116,9 @@ export async function GET(request: NextRequest) {
                 channel_id: channelId,
                 published_at: item.snippet.publishedAt,
                 metadata: {
-                    title: item.snippet.title,
-                    description: item.snippet.description,
+                    // the API hands back HTML-escaped snippet text
+                    title: decodeHtmlEntities(item.snippet.title),
+                    description: decodeHtmlEntities(item.snippet.description),
                     thumbnail: getHighestQualityThumbnail(item.snippet.thumbnails),
                 }
             } as VOD));
