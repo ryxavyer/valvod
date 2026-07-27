@@ -2,15 +2,12 @@
 import AnnotationControls, { AnnotationControlsSkeleton } from '@src/components/annotationControls';
 import AnnotationTimeline, { AnnotationTimelineSkeleton } from '@src/components/annotationTimeline';
 import RelatedVODs from '@src/components/relatedVods';
-import SignupModal from '@src/components/signupModal';
-import { Toggle } from '@src/components/ui/toggle';
 import {
     TooltipProvider,
 } from "@src/components/ui/tooltip";
 import { useToast } from '@src/hooks/use-toast';
 import { Tag, TAG_BUFFER_SEC, TagType } from '@src/lib/tag';
 import { User } from '@supabase/supabase-js';
-import { Star } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -31,29 +28,11 @@ export default function VODPlayer({ user }: VODProps) {
     const router = useRouter();
     const playerRef = useRef<any>(null);
     const playerContainerRef = useRef<HTMLDivElement>(null);
-    const favoriteStarRef = useRef<HTMLButtonElement>(null);
     const [loading, setLoading] = useState(true);
     const [videoTitle, setVideoTitle] = useState('');
     const [videoDuration, setVideoDuration] = useState(0);
     const [tags, setTags] = useState<Tag[]>([]);
     const [activeTagId, setActiveTagId] = useState<number | null>(null);
-
-    const fetchFavoriteStatus = async () => {
-        const { favorited, error } = await (await fetch(`/api/favorites?videoId=${videoId}`)).json();
-        if (error) {
-            toast({
-                title: "Uh oh, we couldn't get favorite status",
-                description: "Please try again later.",
-                variant: "destructive"
-            })
-            return;
-        }
-        if (favorited) {
-            favoriteStarRef.current.dataset.state = "on";
-        } else {
-            favoriteStarRef.current.dataset.state = "off";
-        }
-    }
 
     const fetchTags = async () => {
         const { tags, error } = await (await fetch(`/api/tags?videoId=${videoId}`)).json();
@@ -94,7 +73,6 @@ export default function VODPlayer({ user }: VODProps) {
                         setLoading(false);
                         if (user) {
                             fetchTags();
-                            fetchFavoriteStatus();
                         }
                     },
                 },
@@ -133,46 +111,6 @@ export default function VODPlayer({ user }: VODProps) {
         setActiveTagId(tag.id);
     };
 
-    const toggleFavorite = async () => {
-        // state value here is the pre-click value
-        if (favoriteStarRef.current.dataset.state === 'off') {
-            // add to favorites
-            const res = await fetch(`/api/favorites/`, {
-                method: 'POST',
-                body: JSON.stringify({ videoId }),
-            });
-            if (!res.ok) {
-                favoriteStarRef.current.dataset.state = "off";
-                toast({
-                    title: "Uh oh, we couldn't update favorite status",
-                    description: "Please try again later.",
-                    variant: "destructive"
-                })
-            }
-        } else {
-            // remove from favorites
-            const res = await fetch(`/api/favorites/`, {
-                method: 'DELETE',
-                body: JSON.stringify({ videoId }),
-            });
-            if (!res.ok) {
-                favoriteStarRef.current.dataset.state = "on";
-                toast({
-                    title: "Uh oh, we couldn't update favorite status",
-                    description: "Please try again later.",
-                    variant: "destructive"
-                })
-            }
-        }
-    }
-
-    const TitleSkeleton = () => (
-        <div className='w-full flex flex-row justify-between items-center py-2'>
-            <div className="w-[80%] h-10 bg-muted animate-pulse rounded-lg" />
-            <div className='w-[70px] min-w-[75px] h-10 bg-muted animate-pulse rounded-lg'/>
-        </div>
-    );
-
     const AnnotationUISkeleton = () => (
         <div className='w-full flex flex-col items-center'>
             <div className='w-full pb-2'>
@@ -182,51 +120,17 @@ export default function VODPlayer({ user }: VODProps) {
     );
 
     return (
-        <div className='w-full h-full pt-[100px] xl:h-screen'>
+        <div className='w-full h-full pt-[120px] xl:h-screen'>
             <TooltipProvider>
-                <div className={`flex flex-col w-full h-full justify-center space-x-0 space-y-4 items-start px-6 md:px-10 xl:flex-row ${user ? 'xl:space-x-[100px]' : 'xl:space-x-[25px]'} xl:space-y-0`}>
+                <div className={`flex flex-col w-full h-full justify-center space-x-0 space-y-4 items-start px-6 md:px-10 xl:flex-row xl:space-x-[100px] xl:space-y-0`}>
                     <div className='flex flex-col justify-center items-center w-full xl:w-[calc(100vw-20%)] max-w-[1175px] xl:aspect-video'>
-                        {loading 
-                        ? <TitleSkeleton/>
-                        :
-                            <div className='w-full py-2 flex flex-row items-center justify-between'>
-                                <h1 className='w-[90%] text-xl font-semibold truncate'>{videoTitle}</h1>
-                                {user
-                                ?
-                                    <Toggle
-                                        ref={favoriteStarRef}
-                                        onClick={toggleFavorite}
-                                        size="default"
-                                        variant="outline" 
-                                        className='group w-[70px] border-secondary hover:bg-transparent hover:text-muted-foreground data-toggled:bg-transparent data-toggled:text-accent-foreground'
-                                        title='Add to Favorites'
-                                        aria-label='Add to Favorites'>
-                                        <Star className='h-6 w-6 group-data-toggled:fill-accent'/>
-                                    </Toggle>
-                                :
-                                    <SignupModal
-                                        trigger={
-                                            <Toggle
-                                                ref={favoriteStarRef}
-                                                size="default"
-                                                variant="outline" 
-                                                className='group w-[70px] border-secondary hover:bg-transparent hover:text-muted-foreground data-toggled:bg-transparent data-toggled:text-accent-foreground'
-                                                title='Add to Favorites'
-                                                aria-label='Add to Favorites'>
-                                                <Star className='h-6 w-6 group-data-toggled:fill-accent'/>
-                                            </Toggle>
-                                        }
-                                    />
-                                }
-                            </div>
-                        }
                         <div className='flex flex-row w-full h-full'>
                             <div className='w-full aspect-video'>
                                 <div ref={playerContainerRef} className="w-full h-full bg-muted"></div>
                             </div>
                             {loading
                                 ? <AnnotationControlsSkeleton/>
-                                : <>{user && <AnnotationControls addTag={addTag} />}</>
+                                : <AnnotationControls user={user} addTag={addTag} />
                             }
                         </div>
                         {loading

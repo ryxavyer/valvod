@@ -1,5 +1,5 @@
 'use client'
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     Tooltip,
     TooltipContent,
@@ -8,14 +8,22 @@ import {
 } from "@src/components/ui/tooltip";
 import { ToggleGroup, ToggleGroupItem } from "@src/components/ui/toggle-group"
 import { AttackTagTypes, DefenseTagTypes, ImpactTagTypes, TagGroupType, tagGroupTypeToJSX, TagType, tagTypeToJSX } from '@src/lib/tag';
-import { Info, Shield, Sparkles, Swords, Tags } from 'lucide-react';
+import { Info, Star } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { Button } from './ui/button';
+import SignupModal from './signupModal';
+import { Toggle } from './ui/toggle';
+import { useParams } from 'next/navigation';
+import { useToast } from '@src/hooks/use-toast';
+import { User } from '@supabase/supabase-js';
 
 interface AnnotationControlsProps {
     className?: string;
+    user: User | null;
     addTag: (type: TagType) => void;
 }
+
+const FAVORITE_TOGGLE_CLASS = 'group w-[70px] border-secondary hover:bg-transparent hover:text-muted-foreground data-toggled:bg-transparent data-toggled:text-accent-foreground';
 
 export const AnnotationControlsSkeleton = () => {
     return (
@@ -23,8 +31,11 @@ export const AnnotationControlsSkeleton = () => {
     );
 };
 
-const AnnotationControls = ({ className, addTag }: AnnotationControlsProps) => {
+const AnnotationControls = ({ className, user, addTag }: AnnotationControlsProps) => {
+    const { videoId } = useParams();
+    const { toast } = useToast();
     const [activeAnnotation, setActiveAnnotation] = useState<TagGroupType | null>(null);
+    const [favorited, setFavorited] = useState(false);
     const attackTagsRef = useRef<HTMLButtonElement>(null);
     const defenseTagsRef = useRef<HTMLButtonElement>(null);
     const impactTagsRef = useRef<HTMLButtonElement>(null);
@@ -32,6 +43,43 @@ const AnnotationControls = ({ className, addTag }: AnnotationControlsProps) => {
     window.addEventListener('resize', () => {
         setActiveAnnotation(null);
     });
+
+    useEffect(() => {
+        if (!user || !videoId) return;
+        let cancelled = false;
+        const fetchFavoriteStatus = async () => {
+            const { favorited, error } = await (await fetch(`/api/favorites?videoId=${videoId}`)).json();
+            if (cancelled) return;
+            if (error) {
+                toast({
+                    title: "Uh oh, we couldn't get favorite status",
+                    description: "Please try again later.",
+                    variant: "destructive"
+                })
+                return;
+            }
+            setFavorited(favorited);
+        }
+        fetchFavoriteStatus();
+        return () => { cancelled = true; };
+    }, [user?.id, videoId]);
+
+    const toggleFavorite = async (pressed: boolean) => {
+        // show the new state right away, roll back if the write fails
+        setFavorited(pressed);
+        const res = await fetch(`/api/favorites/`, {
+            method: pressed ? 'POST' : 'DELETE',
+            body: JSON.stringify({ videoId }),
+        });
+        if (!res.ok) {
+            setFavorited(!pressed);
+            toast({
+                title: "Uh oh, we couldn't update favorite status",
+                description: "Please try again later.",
+                variant: "destructive"
+            })
+        }
+    }
 
     const handleToggleChange = (val: TagGroupType) => {
         setActiveAnnotation(prev => (prev === val ? null : val));
@@ -46,15 +94,36 @@ const AnnotationControls = ({ className, addTag }: AnnotationControlsProps) => {
         <div className={`hidden bg-neutral-900 w-[75px] min-w-[75px] py-4 sm:flex flex-col space-y-8 rounded-lg rounded-bl-none rounded-tl-none ${className}`}>
             <TooltipProvider>
                 <div className='flex flex-col items-center space-y-8'>
-                    <Tooltip>
-                        <TooltipTrigger className='hover:cursor-default'>
-                            <Tags className="h-6 w-6 shrink-0 opacity-100 mt-4"/>
-                        </TooltipTrigger>
-                        <TooltipContent sideOffset={20}>VOD Tags</TooltipContent>
-                    </Tooltip>
+                    {user
+                    ?
+                        <Toggle
+                            pressed={favorited}
+                            onPressedChange={toggleFavorite}
+                            size="default"
+                            variant="default"
+                            className={FAVORITE_TOGGLE_CLASS}
+                            title={favorited ? 'Remove from Favorites' : 'Add to Favorites'}
+                            aria-label={favorited ? 'Remove from Favorites' : 'Add to Favorites'}>
+                            <Star className='h-6 w-6 group-data-toggled:fill-accent'/>
+                        </Toggle>
+                    :
+                        <SignupModal
+                            trigger={
+                                <Toggle
+                                    size="default"
+                                    variant="default"
+                                    className={FAVORITE_TOGGLE_CLASS}
+                                    title='Add to Favorites'
+                                    aria-label='Add to Favorites'>
+                                    <Star className='h-6 w-6 group-data-toggled:fill-accent'/>
+                                </Toggle>
+                            }
+                        />
+                    }
                     <Separator orientation="horizontal" decorative className='w-[30px] bg-secondary'/>
                 </div>
-                <ToggleGroup type="single" value={activeAnnotation || ""} className='flex flex-col items-center justify-center space-y-4 pb-4'>
+                {/* anons still get the bar so the favorite star can pitch signup, but tagging needs an account */}
+                <ToggleGroup type="single" disabled={!user} value={activeAnnotation || ""} className='flex flex-col items-center justify-center space-y-4 pb-4'>
                     <ToggleGroupItem
                         ref={attackTagsRef}
                         value={TagGroupType.ATTACK}
