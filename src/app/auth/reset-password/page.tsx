@@ -8,7 +8,7 @@ export const metadata = {
   description: "Update the password set for your account."
 }
 
-export default async function ChangePassword({ searchParams }: { searchParams: { code?: string, error?: string, error_description?: string } }) {
+export default async function ChangePassword({ searchParams }: { searchParams: { error?: string, error_description?: string } }) {
   // Check for errors in the URL (expired link, invalid link, etc.)
   if (searchParams.error) {
     let errorMessage = 'Invalid or expired reset link';
@@ -19,18 +19,14 @@ export default async function ChangePassword({ searchParams }: { searchParams: {
     redirect(`/auth/forgot-password?error=${encodeURIComponent(errorMessage)}`);
   }
 
-  // Exchange the code for a session if present
-  if (searchParams.code) {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(searchParams.code);
-    if (error) {
-      // If code exchange fails, redirect to forgot password page
-      redirect(`/auth/forgot-password?error=${encodeURIComponent('Reset link is invalid or has expired. Please try again.')}`);
-    }
-  } else {
-    // No code provided - redirect to forgot password page
-    redirect('/auth/forgot-password?error=' + encodeURIComponent('No reset code provided. Please request a new link.'));
+  // The code exchange happens in /auth/callback -- a Server Component can't write
+  // the session cookies, so by the time we render there must already be a session.
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    redirect('/auth/forgot-password?error=' + encodeURIComponent('That reset link is invalid or has expired. Please request a new one.'));
   }
+
   return (
     <div className='flex flex-col w-full h-screen'>
       <div className='flex flex-row w-full my-auto'>

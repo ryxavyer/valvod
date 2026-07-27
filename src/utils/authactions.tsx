@@ -1,14 +1,35 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { createClient } from '@src/lib/supabase'
 import { Provider, SignInWithOAuthCredentials } from '@supabase/supabase-js'
 
+// Vercel's URL env vars are bare hostnames with no scheme. A `redirectTo` without
+// a scheme isn't a valid absolute URL, so Supabase silently discards it and falls
+// back to the project's Site URL -- which lands the user on a page that never
+// exchanges the code.
+const withProtocol = (url: string) => {
+  const trimmed = url.trim().replace(/\/+$/, '')
+  if (/^https?:\/\//i.test(trimmed)) return trimmed
+  return `${trimmed.startsWith('localhost') ? 'http' : 'https'}://${trimmed}`
+}
+
 const getURL = () => {
-  let url =
-    process.env.VERCEL_URL ??
-    'http://localhost:3000'
-  return url
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return withProtocol(process.env.NEXT_PUBLIC_SITE_URL)
+  }
+
+  // Derive from the request so previews, custom domains and localhost all work.
+  const headerList = headers()
+  const host = headerList.get('x-forwarded-host') ?? headerList.get('host')
+  if (host) {
+    const proto = headerList.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https')
+    return `${proto}://${host}`
+  }
+
+  const vercelHost = process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL
+  return vercelHost ? withProtocol(vercelHost) : 'http://localhost:3000'
 }
 
 export async function login(formData: FormData): Promise<{success: boolean, message?: string}> {
@@ -55,8 +76,10 @@ export async function oauth(formData: FormData) {
 export async function sendResetPasswordEmail(formData: FormData): Promise<{ success: boolean, message?: string }> {
   const supabase = await createClient()
   const email = formData.get('email') as string
+  // Route through the callback: only a Route Handler can persist the session
+  // cookies from the code exchange, so the reset page can't do it itself.
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${getURL()}/auth/reset-password`
+    redirectTo: `${getURL()}/auth/callback?next=${encodeURIComponent('/auth/reset-password')}`
   })
   if (error) {
     console.error('[sendResetPasswordEmail] Error:', error.message)

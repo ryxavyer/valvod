@@ -64,10 +64,11 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // NOTE: /auth/reset-password is deliberately not listed here. It checks the
+  // session itself so it can send the user back to /auth/forgot-password with a
+  // real explanation instead of silently bouncing them to the homepage.
   if (
     !user && (
-      // TODO: comment out below & add any extra needed
-      request.nextUrl.pathname.startsWith('/auth/reset-password') ||
       request.nextUrl.pathname.startsWith('/library')
     )
   ) {

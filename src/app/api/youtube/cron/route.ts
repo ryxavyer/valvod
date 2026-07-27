@@ -39,7 +39,7 @@ const CHANNELS = {
   // channel id: number of videos to fetch (&publishedAfter likely limits this)
   "UCOR8JcMRg_cFKx0etV5zXBQ": 200, // Valorant DAILY
   "UCjZTend97TmoVDf31M-Tacg": 200, // Valorant Pro Vods
-  "UCMdeP_OZiBy0FvGKvxX7JSA": 200, // Radiant Pro VODs (weird intros)
+  // "UCMdeP_OZiBy0FvGKvxX7JSA": 200, // Radiant Pro VODs (weird intros) (disabled for now bc uploading DMs???)
 }
 
 function getHighestQualityThumbnail(thumbnails: SearchResponse["items"][0]["snippet"]["thumbnails"]): string {

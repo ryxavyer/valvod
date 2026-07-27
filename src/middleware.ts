@@ -1,8 +1,25 @@
-import { type NextRequest } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 import { updateSession } from '@src/lib/supabase'
 
+// Routes that consume an auth `code` themselves.
+const CODE_HANDLING_PATHS = ['/auth/callback', '/auth/confirm']
 
 export async function middleware(request: NextRequest) {
+  const { pathname, searchParams } = request.nextUrl
+  const code = searchParams.get('code')
+
+  // Safety net: if Supabase's redirect allow-list is stale it drops the user on
+  // the Site URL with `?code=` attached, where nothing exchanges it. Forward any
+  // stray code to the callback so the session still gets created.
+  if (code && !CODE_HANDLING_PATHS.some((path) => pathname.startsWith(path))) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/auth/callback'
+    url.search = ''
+    url.searchParams.set('code', code)
+    if (pathname !== '/') url.searchParams.set('next', pathname)
+    return NextResponse.redirect(url)
+  }
+
   const response = await updateSession(request)
   return response
 }
